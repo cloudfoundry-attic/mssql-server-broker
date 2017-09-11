@@ -1,0 +1,34 @@
+{
+  "services":[
+    {
+      "id":"SqlServer",
+      "name":"SqlServer",
+      "description":"SqlServer Broker for Pivotal Cloud Foundry",
+      "bindable": true,
+      "tags":[
+        "sqlserver"
+      ],
+      "metadata":{
+        "displayName":"SqlServer",
+        "imageUrl":"https://assets.onestore.ms/cdnfiles/external/uhf/long/9a49a7e9d8e881327e81b9eb43dabc01de70a9bb/images/microsoft-gray.png",
+        "longDescription":"SqlServer Service Broker for Pivotal Cloud Foundry",
+        "providerDisplayName":"Pivotal",
+        "documentationUrl":"https://docs.cloudfoundry.org/services/api.html"
+      },
+      "plans":[
+        {
+          "id":"SqlServerSharedInstance",
+          "name":"sharedVM",
+          "description":"mvp service",
+          "metadata": {
+            "cost": 0,
+            "bullets": [{
+              "content": "shared instance mvp"
+            }]
+          },
+          "free": true
+        }
+      ]
+    }
+  ]
+}

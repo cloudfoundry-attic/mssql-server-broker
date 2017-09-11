@@ -1,0 +1,17 @@
+---
+applications:
+- name: sqlserver-broker
+  memory: 512M
+  instances: 1
+  buildpack: java_buildpack_offline
+  path: target/sqlserver-broker.jar
+  services: [ redis-for-sqlserver  ]
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    SQL_HOST: host-name-here
+    SQL_PORT: 1433
+    SQLSERVER_USERNAME: sql-server-admin-uid-here
+    SQLSERVER_PASSWORD: sql-server-admin-password-here
+
+
+
