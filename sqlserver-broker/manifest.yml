@@ -10,8 +10,5 @@ applications:
     SPRING_PROFILES_ACTIVE: cloud
     SQL_HOST: host-name-here
     SQL_PORT: 1433
-    SQLSERVER_USERNAME: sql-server-admin-uid-here
-    SQLSERVER_PASSWORD: sql-server-admin-password-here
-
-
-
+    SECURITY_USER_NAME: someUserNameForTheBroker
+    SECURITY_USER_PASSWORD: somePasswordForTheBroker

@@ -17,13 +17,13 @@
 
 package io.pivotal.ecosystem.sqlserver;
 
-import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
-import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
 import io.pivotal.ecosystem.sqlserver.connector.SqlServerServiceInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
+import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
 
 import javax.sql.DataSource;
 import java.util.HashMap;

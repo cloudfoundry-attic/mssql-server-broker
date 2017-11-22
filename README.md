@@ -4,7 +4,7 @@ This is a Cloud Foundry service broker for [Microsoft SqlServer](https://www.mic
 This version should be considered a beta product, and has been tested against PCF Enterprise Runtime v1.9
 
 ## Prerequisites
-The service broker requires an existing SqlServer install.
+The service broker requires an existing SqlServer install. It has been tested against the docker-based version described [here](https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker).
 
 ## The Modules
 ### [sqlserver-broker](https://github.com/cf-platform-eng/ms-sql-server-broker/tree/master/sqlserver-broker)

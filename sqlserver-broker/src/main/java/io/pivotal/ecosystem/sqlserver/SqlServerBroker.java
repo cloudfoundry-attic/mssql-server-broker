@@ -17,12 +17,12 @@
 
 package io.pivotal.ecosystem.sqlserver;
 
+import io.pivotal.ecosystem.servicebroker.model.LastOperation;
 import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
 import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
 import io.pivotal.ecosystem.servicebroker.service.DefaultServiceImpl;
 import io.pivotal.ecosystem.sqlserver.connector.SqlServerServiceInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -59,13 +59,15 @@ class SqlServerBroker extends DefaultServiceImpl {
      *                 as part of the create-service request, which will show up as key value pairs in instance.parameters.
      */
     @Override
-    public void createInstance(ServiceInstance instance) throws ServiceBrokerException {
+    public LastOperation createInstance(ServiceInstance instance) {
         log.info("creating database...");
 
         //user can optionally specify a db name
         String db = client.createDatabase(instance);
         instance.getParameters().put(SqlServerServiceInfo.DATABASE, db);
         log.info("database: " + db + " created.");
+
+        return new LastOperation(LastOperation.CREATE, LastOperation.SUCCEEDED, "create succeeded.");
     }
 
     /**
@@ -75,10 +77,12 @@ class SqlServerBroker extends DefaultServiceImpl {
      * @param instance service instance data passed in by the cloud connector.
      */
     @Override
-    public void deleteInstance(ServiceInstance instance) {
+    public LastOperation deleteInstance(ServiceInstance instance) {
         String db = instance.getParameters().get(SqlServerServiceInfo.DATABASE).toString();
         log.info("deleting database: " + db);
         client.deleteDatabase(db);
+
+        return new LastOperation(LastOperation.DELETE, LastOperation.SUCCEEDED, "delete succeeded.");
     }
 
     /**
@@ -88,8 +92,9 @@ class SqlServerBroker extends DefaultServiceImpl {
      * @param instance service instance data passed in by the cloud connector.
      */
     @Override
-    public void updateInstance(ServiceInstance instance) {
+    public LastOperation updateInstance(ServiceInstance instance) {
         log.info("update not yet implemented");
+        return new LastOperation(LastOperation.UPDATE, LastOperation.FAILED, "update not implemented.");
     }
 
     /**
@@ -106,7 +111,7 @@ class SqlServerBroker extends DefaultServiceImpl {
      *                 pairs in binding.properties
      */
     @Override
-    public void createBinding(ServiceInstance instance, ServiceBinding binding) {
+    public LastOperation createBinding(ServiceInstance instance, ServiceBinding binding) {
         String db = instance.getParameters().get(SqlServerServiceInfo.DATABASE).toString();
         binding.getParameters().put(SqlServerServiceInfo.DATABASE, db);
 
@@ -115,6 +120,8 @@ class SqlServerBroker extends DefaultServiceImpl {
         binding.getParameters().put(SqlServerServiceInfo.PASSWORD, userCredentials.get(SqlServerServiceInfo.PASSWORD));
 
         log.info("bound app: " + binding.getAppGuid() + " to database: " + db);
+
+        return new LastOperation(LastOperation.BIND, LastOperation.SUCCEEDED, "bind succeeded.");
     }
 
     /**
@@ -124,9 +131,10 @@ class SqlServerBroker extends DefaultServiceImpl {
      * @param binding  binding data passed in by the cloud connector.
      */
     @Override
-    public void deleteBinding(ServiceInstance instance, ServiceBinding binding) {
+    public LastOperation deleteBinding(ServiceInstance instance, ServiceBinding binding) {
         log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getParameters().get(SqlServerServiceInfo.DATABASE));
         client.deleteUserCreds(binding.getParameters().get(SqlServerServiceInfo.USERNAME).toString(), binding.getParameters().get(SqlServerServiceInfo.DATABASE).toString());
+        return new LastOperation(LastOperation.UNBIND, LastOperation.SUCCEEDED, "unbind succeeded.");
     }
 
     /**
