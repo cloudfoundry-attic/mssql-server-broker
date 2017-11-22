@@ -1,7 +1,7 @@
 ---
 applications:
 - name: sqlserver-broker
-  memory: 512M
+  memory: 1G
   instances: 1
   buildpack: java_buildpack_offline
   path: target/sqlserver-broker.jar
