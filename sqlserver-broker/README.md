@@ -20,7 +20,7 @@ A cloud foundry service broker for Microsoft SqlServer.
   ```
 5. Register the broker. The broker makes use of spring-security to protect itself against unauthorized meddling. For more information, please see [here](https://github.com/cloudfoundry-community/spring-boot-cf-service-broker#security).
   ```bash
-  cf create-service-broker SqlServer user passwordFromTheBrokerLog https://uri.of.your.broker.app
+  cf create-service-broker SqlServer userNameFromManifestFile passwordFromManifestFile https://uri.of.your.broker.app
   ```
 6. See the broker:
   ```bash
