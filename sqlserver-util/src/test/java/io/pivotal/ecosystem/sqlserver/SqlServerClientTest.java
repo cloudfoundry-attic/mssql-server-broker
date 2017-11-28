@@ -21,6 +21,7 @@ import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
 import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,14 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * "ignore" this test, or set the correct url in the src/test/resources/application.properties
+ * file to test connectivity
+ */
+
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
+@Ignore
 public class SqlServerClientTest {
 
     @Autowired

@@ -4,7 +4,7 @@ applications:
   memory: 512M
   instances: 1
   buildpack: java_buildpack_offline
-  path: target/sqlserver-client-example-1.0.0.jar
+  path: target/sqlserver-client-example.jar
   services: [ sql-test ]
   env:
     SPRING_PROFILES_ACTIVE: cloud
