@@ -1,7 +1,7 @@
 # ms-sql-server-broker
-This is a Cloud Foundry service broker for [Microsoft SqlServer](https://www.microsoft.com/en-us/sql-server/sql-server-2016). It currently supports multiple database instances within a sharedVM via a [bosh release](https://github.com/cf-platform-eng/ms-sql-server-bosh-release), or SqlServer instances running external to PCF.
+This is a Cloud Foundry service broker for [Microsoft SqlServer](https://www.microsoft.com/en-us/sql-server/sql-server-2016). It currently supports multiple database instances within a sharedVM via a [bosh release](https://github.com/cf-platform-eng/ms-sql-server-bosh-release), or SqlServer instances running external to CF.
 
-This version should be considered a beta product, and has been tested against PCF Enterprise Runtime v1.9
+This version should be considered a beta product, and has been tested against CF Elastic Runtime v1.9
 
 ## Prerequisites
 The service broker requires an existing SqlServer install. It has been tested against the docker-based version described [here](https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker).
