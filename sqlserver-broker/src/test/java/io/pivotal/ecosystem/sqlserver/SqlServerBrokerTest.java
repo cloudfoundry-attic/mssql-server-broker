@@ -36,8 +36,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * test will create and delete a cluster on an sqlserver. @Ignore tests unless you are doing integration testing and have a test
- * sqlserver available. You will need to edit the application.properties file in src/test/resources to add your sqlserver environment data
+ * test will create and delete a cluster on a SQL Server. @Ignore tests unless you are doing integration testing and have a test
+ * SQL Server available. You will need to edit the application.properties file in src/test/resources to add your SQL Server environment data
  * for this test to work.
  */
 

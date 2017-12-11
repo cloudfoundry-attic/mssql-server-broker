@@ -29,7 +29,7 @@ public class SqlServerConnectionCreator extends AbstractServiceConnectorCreator<
 
     @Override
     public DataSource create(SqlServerServiceInfo serviceInfo, ServiceConnectorConfig serviceConnectorConfig) {
-        log.info("creating sqlservice repo wth service info: " + serviceInfo);
+        log.info("creating SQL Service repo wth service info: " + serviceInfo);
 
         SQLServerConnectionPoolDataSource dataSource = new SQLServerConnectionPoolDataSource();
         dataSource.setURL(serviceInfo.getUri());

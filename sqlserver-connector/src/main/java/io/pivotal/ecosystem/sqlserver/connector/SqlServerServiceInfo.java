@@ -25,7 +25,7 @@ import org.springframework.cloud.service.ServiceInfo;
 @AllArgsConstructor
 public class SqlServerServiceInfo implements ServiceInfo {
 
-    //scheme used by connectors to tag this to sql server
+    //scheme used by connectors to tag this to SQL Server
     public static final String URI_SCHEME = "jdbc:sqlserver";
 
     //keys used to store metadata for service bindings

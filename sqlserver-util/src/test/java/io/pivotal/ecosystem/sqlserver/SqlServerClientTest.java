@@ -39,7 +39,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
-@Ignore
+//@Ignore
 public class SqlServerClientTest {
 
     @Autowired

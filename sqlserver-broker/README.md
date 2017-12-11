@@ -1,5 +1,5 @@
 # sqlserver-broker
-A cloud foundry service broker for Microsoft SqlServer.
+A cloud foundry service broker for Microsoft SQL Server.
 
 ## Using sqlserver-broker
 1. sqlserver-broker requires a redis datastore. To set this up:
@@ -16,11 +16,12 @@ A cloud foundry service broker for Microsoft SqlServer.
   ```
 4. Push the broker to cf:
   ```bash
+  cd sqlserver-broker
   cf push
   ```
 5. Register the broker. The broker makes use of spring-security to protect itself against unauthorized meddling. For more information, please see [here](https://github.com/cloudfoundry-community/spring-boot-cf-service-broker#security).
   ```bash
-  cf create-service-broker SqlServer userNameFromManifestFile passwordFromManifestFile https://uri.of.your.broker.app
+  cf create-service-broker SQLServer userNameFromManifestFile passwordFromManifestFile https://uri.of.your.broker.app
   ```
 6. See the broker:
   ```bash
@@ -28,8 +29,7 @@ A cloud foundry service broker for Microsoft SqlServer.
   Getting service brokers as admin...
   
   name                          url
-  ...
-  sqlserver-broker              https://your-broker-url
+  SQLServer                     https://your-broker-url
   ...
   ```
 7. Enable access to the broker:
@@ -39,12 +39,12 @@ A cloud foundry service broker for Microsoft SqlServer.
   ...
   broker: sqlserver-broker
      service          plan      access   orgs
-     SqlServer        sharedVM  none
+     SQLServer        sharedVM  none
   ...
   
   
-  cf enable-service-access SqlServer
-  Enabling access to all plans of service SqlServer for all orgs as admin...
+  cf enable-service-access SQLServer
+  Enabling access to all plans of service SQLServer for all orgs as admin...
 
 
   cf marketplace
@@ -52,7 +52,7 @@ A cloud foundry service broker for Microsoft SqlServer.
   OK
   
   service          plans           description
-  SqlServer        sharedVM        SqlServer Broker for Pivotal Cloud Foundry
+  SQLServer        sharedVM        SQL Server Broker for Cloud Foundry
   ...
   ```
   
@@ -62,11 +62,11 @@ Please refer to [this documentation](https://docs.cloudfoundry.org/services/mana
 ### Creating a service instance
 Using the broker to create a service instance results in the creation of a new [contained](https://docs.microsoft.com/en-us/sql/relational-databases/databases/contained-databases) database with a random database name.
   ```bash
-  cf create-service SqlServer sharedVM aSqlServerService
+  cf create-service SQLServer sharedVM aSqlServerService
   ```
 Optionally, users can provide an alphanumeric name for the database as follows:
   ```bash
-  cf create-service SqlServer sharedVM aSqlServerService -c '{"db" : "aDatabaseName"}'
+  cf create-service SQLServer sharedVM aSqlServerService -c '{"db" : "aDatabaseName"}'
   ```
 ### Deleting a service instance
 Deleting a service instance results in the immediate deletion of the corresponding database.

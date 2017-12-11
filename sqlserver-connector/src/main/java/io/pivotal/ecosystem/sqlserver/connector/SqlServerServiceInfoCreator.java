@@ -32,7 +32,7 @@ public class SqlServerServiceInfoCreator extends CloudFoundryServiceInfoCreator<
 
     @Override
     public SqlServerServiceInfo createServiceInfo(Map<String, Object> serviceData) {
-        log.info("Returning sqlserver service info: " + serviceData.toString());
+        log.info("Returning SQL Server service info: " + serviceData.toString());
 
         Map<String, Object> credentials = getCredentials(serviceData);
         String id = getId(serviceData);
