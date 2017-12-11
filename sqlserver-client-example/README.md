@@ -1,13 +1,13 @@
 # sqlserver-client-example
 A simple spring boot application that makes use of sqlserver-broker and sqlserver-connector.
 
-The app connects to sql server on startup, initializes a schema, loads some data, and exposes some REST endpoints. Because it makes use of sqlserver-connector library there is very little configuration needed for it to accomplish this.
+The app connects to SQL Server on startup, initializes a schema, loads some data, and exposes some REST endpoints. Because it makes use of sqlserver-connector library there is very little configuration needed for it to accomplish this.
 
 ## Instructions to run the demo
 1. Follow the instructions in the [sqlserver-broker](https://github.com/cf-platform-eng/ms-sql-server-broker/tree/master/sqlserver-broker) to push and register the broker.
 1. Create a cf service instance for the demo using the broker:
   ```bash  
-  cf create-service SqlServer sharedVM sql-test 
+  cf create-service SQLServer sharedVM sql-test 
   ```  
 3. Push the demo:
   ```bash
