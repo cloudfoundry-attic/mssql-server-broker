@@ -1,10 +1,10 @@
 # ms-sql-server-broker
-This is a Cloud Foundry service broker for [Microsoft SqlServer](https://www.microsoft.com/en-us/sql-server/sql-server-2016). It currently supports multiple database instances within a sharedVM via a [bosh release](https://github.com/cf-platform-eng/ms-sql-server-bosh-release), or SqlServer instances running external to CF.
+This is a Cloud Foundry service broker for [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-2016). It currently supports multiple database instances within a sharedVM via a [bosh release](https://github.com/cf-platform-eng/ms-sql-server-bosh-release), or SQL Server instances running external to CF.
 
 This version should be considered a beta product, and has been tested against CF Elastic Runtime v1.9
 
 ## Prerequisites
-The service broker requires an existing SqlServer install. It has been tested against the docker-based version described [here](https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker).
+The service broker requires an existing SQL Server install. It has been tested against the docker-based version described [here](https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker).
 
 ## The Modules
 ### [sqlserver-broker](https://github.com/cf-platform-eng/ms-sql-server-broker/tree/master/sqlserver-broker)
@@ -17,4 +17,4 @@ This module contains spring-cloud-connector code that can optionally be used by 
 A sample project that demos usage of the broker and the connector. See its [readme](https://github.com/cf-platform-eng/ms-sql-server-broker/blob/master/sqlserver-client-example/README.md) for more details.
  
 ### [sqlserver-util](https://github.com/cf-platform-eng/ms-sql-server-broker/tree/master/sqlserver-util)
-Shared utilities for interacting with the SqlServer backend.
+Shared utilities for interacting with the SQL Server backend.
