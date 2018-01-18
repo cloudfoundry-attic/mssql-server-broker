@@ -1,5 +1,5 @@
 # sqlserver-broker
-A cloud foundry service broker for Microsoft SQL Server.
+A cloud foundry service broker for on-premises Microsoft SQL Server.
 
 ## Using sqlserver-broker
 1. sqlserver-broker requires a redis datastore. To set this up:

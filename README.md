@@ -1,5 +1,5 @@
 # ms-sql-server-broker
-This is a Cloud Foundry service broker for [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-2016). It currently supports multiple database instances within a sharedVM via a [bosh release](https://github.com/cf-platform-eng/ms-sql-server-bosh-release), or SQL Server instances running external to CF.
+This is a Cloud Foundry service broker for on-premises [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-2016). It currently supports multiple database instances within a sharedVM via a [bosh release](https://github.com/cf-platform-eng/ms-sql-server-bosh-release), or SQL Server instances running external to CF.
 
 This version should be considered a beta product, and has been tested against CF Elastic Runtime v1.9
 
