@@ -5,15 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.pivotal.cf.broker</groupId>
-    <artifactId>ms-sql-server-broker</artifactId>
+    <artifactId>mssql-server-broker</artifactId>
     <version>1.1.0</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>sqlserver-broker</module>
-        <module>sqlserver-util</module>
-        <module>sqlserver-connector</module>
-        <module>sqlserver-client-example</module>
+        <module>broker</module>
+        <module>util</module>
+        <module>connector</module>
+        <module>client-example</module>
     </modules>
 
     <parent>
