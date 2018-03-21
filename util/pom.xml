@@ -7,17 +7,12 @@
     <parent>
         <groupId>io.pivotal.cf.broker</groupId>
         <artifactId>mssql-server-broker</artifactId>
-        <version>1.1.0</version>
+        <version>2.0.0</version>
     </parent>
 
     <artifactId>util</artifactId>
 
     <dependencies>
-
-        <dependency>
-            <groupId>io.pivotal.ecosystem</groupId>
-            <artifactId>simple-broker</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>io.pivotal.cf.broker</groupId>
@@ -47,7 +42,7 @@
 
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-cloudfoundry-service-broker</artifactId>
+            <artifactId>spring-cloud-open-service-broker-starter-webmvc</artifactId>
         </dependency>
 
         <dependency>

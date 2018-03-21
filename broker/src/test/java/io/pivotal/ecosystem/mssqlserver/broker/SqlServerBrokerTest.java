@@ -14,24 +14,24 @@
 
 package io.pivotal.ecosystem.mssqlserver.broker;
 
-import io.pivotal.ecosystem.servicebroker.model.LastOperation;
-import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
-import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingDoesNotExistException;
+import org.springframework.cloud.servicebroker.exception.ServiceInstanceDoesNotExistException;
+import org.springframework.cloud.servicebroker.model.binding.*;
+import org.springframework.cloud.servicebroker.model.instance.*;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * test will create and delete a cluster on a SQL Server. @Ignore tests unless you are doing integration testing and
@@ -41,20 +41,40 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Ignore
 public class SqlServerBrokerTest {
 
     @Autowired
     private SqlServerBroker sqlServerBroker;
 
     @Autowired
-    private ServiceInstance serviceInstance;
+    private ServiceInstanceRepository serviceInstanceRepository;
 
     @Autowired
-    private ServiceBinding serviceBinding;
+    private CreateServiceInstanceRequest createServiceInstanceRequest;
+
+    @Autowired
+    private CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest;
+
+    @Autowired
+    private GetLastServiceOperationRequest getLastServiceOperationRequest;
+
+    @Autowired
+    private GetServiceInstanceRequest getServiceInstanceRequest;
+
+    @Autowired
+    private UpdateServiceInstanceRequest updateServiceInstanceRequest;
 
     @Autowired
     private SqlServerClient sqlServerClient;
+
+    @Autowired
+    private GetServiceInstanceBindingRequest getServiceInstanceBindingRequest;
+
+    @Autowired
+    private DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest;
+
+    @Autowired
+    private DeleteServiceInstanceRequest deleteServiceInstanceRequest;
 
     @Before
     public void setUp() {
@@ -70,40 +90,68 @@ public class SqlServerBrokerTest {
         if (sqlServerClient.checkDatabaseExists(TestConfig.SI_ID)) {
             sqlServerClient.deleteDatabase(TestConfig.SI_ID);
         }
+
+        Optional<ServiceInstance> si = serviceInstanceRepository.findById(TestConfig.SI_ID);
+        if (si.isPresent()) {
+            serviceInstanceRepository.delete(si.get());
+        }
     }
 
     @Test
     public void testLifecycle() {
-        LastOperation lo = sqlServerBroker.createInstance(serviceInstance);
-        assertNotNull(lo);
-        assertEquals(LastOperation.SUCCEEDED, lo.getState());
-        assertEquals(LastOperation.CREATE, lo.getOperation());
+        CreateServiceInstanceResponse csir = sqlServerBroker.createServiceInstance(createServiceInstanceRequest);
+        assertNotNull(csir);
+        assertEquals(OperationState.SUCCEEDED.getValue(), csir.getOperation());
+        assertFalse(csir.isInstanceExisted());
 
-        lo = sqlServerBroker.createBinding(serviceInstance, serviceBinding);
-        assertNotNull(lo);
-        assertEquals(LastOperation.SUCCEEDED, lo.getState());
-        assertEquals(LastOperation.BIND, lo.getOperation());
+        GetServiceInstanceResponse gsir = sqlServerBroker.getServiceInstance(getServiceInstanceRequest);
+        assertNotNull(gsir);
+        assertEquals(1, gsir.getParameters().size());
 
-        Map<String, Object> m = sqlServerBroker.getCredentials(serviceInstance, serviceBinding);
+        try {
+            sqlServerBroker.getLastOperation(getLastServiceOperationRequest);
+        } catch (UnsupportedOperationException e) {
+            //expected
+        }
+
+        try {
+            sqlServerBroker.updateServiceInstance(updateServiceInstanceRequest);
+        } catch (UnsupportedOperationException e) {
+            //expected
+        }
+
+        CreateServiceInstanceAppBindingResponse csiabr = (CreateServiceInstanceAppBindingResponse) sqlServerBroker.createServiceInstanceBinding(createServiceInstanceBindingRequest);
+        assertNotNull(csiabr);
+        assertFalse(csiabr.isBindingExisted());
+        Map<String, Object> m = csiabr.getCredentials();
         assertNotNull(m);
-        assertEquals("aUser", m.get(SqlServerServiceInfo.USERNAME));
-        assertNotNull(SqlServerServiceInfo.PASSWORD);
-        assertEquals("jdbc:sqlserver://localhost:1433;user=aUser;password=aPassword;databaseName=deleteme", m.get(SqlServerServiceInfo.URI));
-        assertEquals("deleteme", m.get(SqlServerServiceInfo.DATABASE));
+        assertEquals(4, m.size());
 
-        lo = sqlServerBroker.deleteBinding(serviceInstance, serviceBinding);
-        assertNotNull(lo);
-        assertEquals(LastOperation.SUCCEEDED, lo.getState());
-        assertEquals(LastOperation.UNBIND, lo.getOperation());
+        GetServiceInstanceAppBindingResponse gsiabr = (GetServiceInstanceAppBindingResponse) sqlServerBroker.getServiceInstanceBinding(getServiceInstanceBindingRequest);
+        assertNotNull(gsiabr);
+        Map<String, Object> m2 = gsiabr.getCredentials();
+        assertNotNull(m2);
+        assertEquals(4, m.size());
+        assertEquals("aUser", m2.get(SqlServerServiceInfo.USERNAME));
+        assertNotNull(m2.get(SqlServerServiceInfo.URI));
+        assertTrue(m2.get(SqlServerServiceInfo.URI).toString().startsWith("jdbc:sqlserver://"));
+        assertEquals("deleteme", m2.get(SqlServerServiceInfo.DATABASE));
 
-        lo = sqlServerBroker.deleteInstance(serviceInstance);
-        assertNotNull(lo);
-        assertEquals(LastOperation.SUCCEEDED, lo.getState());
-        assertEquals(LastOperation.DELETE, lo.getOperation());
-    }
+        sqlServerBroker.deleteServiceInstanceBinding(deleteServiceInstanceBindingRequest);
+        try {
+            sqlServerBroker.getServiceInstanceBinding(getServiceInstanceBindingRequest);
+        } catch (ServiceInstanceBindingDoesNotExistException e) {
+            //expected
+        }
 
-    @Test
-    public void TestIsAsync() {
-        assertFalse(sqlServerBroker.isAsync());
+        DeleteServiceInstanceResponse dsir = sqlServerBroker.deleteServiceInstance(deleteServiceInstanceRequest);
+        assertNotNull(dsir);
+        assertEquals(OperationState.SUCCEEDED.getValue(), dsir.getOperation());
+
+        try {
+            sqlServerBroker.getServiceInstance(getServiceInstanceRequest);
+        } catch (ServiceInstanceDoesNotExistException e) {
+            //expected
+        }
     }
 }

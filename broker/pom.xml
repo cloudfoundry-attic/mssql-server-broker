@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.pivotal.cf.broker</groupId>
         <artifactId>mssql-server-broker</artifactId>
-        <version>1.1.0</version>
+        <version>2.0.0</version>
     </parent>
 
     <artifactId>broker</artifactId>
@@ -15,20 +15,40 @@
     <dependencies>
 
         <dependency>
-            <groupId>io.pivotal.ecosystem</groupId>
-            <artifactId>simple-broker</artifactId>
-            <version>1.1.0</version>
-        </dependency>
-
-        <dependency>
             <groupId>io.pivotal.cf.broker</groupId>
-            <artifactId>util</artifactId>
+            <artifactId>connector</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cloud-connectors</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-open-service-broker-starter-webmvc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

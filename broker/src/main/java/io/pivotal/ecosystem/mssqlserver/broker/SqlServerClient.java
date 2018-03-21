@@ -18,16 +18,14 @@ import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
-//import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
-//import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
+import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Repository
+@Service
 @Slf4j
 class SqlServerClient {
 
@@ -55,7 +53,7 @@ class SqlServerClient {
         return jdbcTemplate.queryForObject("SELECT count(*) FROM sys.databases WHERE name = ?", new Object[]{db}, Integer.class) > 0;
     }
 
-    String getDbUrl(String db) {
+    String getDbUrl(Object db) {
         if (db == null) {
             return this.url;
         }
@@ -105,17 +103,19 @@ class SqlServerClient {
         return "d" + getRandomishId();
     }
 
-    Map<String, String> createUserCreds(ServiceBinding binding) {
-        String db = binding.getParameters().get(SqlServerServiceInfo.DATABASE).toString();
-        Map<String, String> userCredentials = new HashMap<>();
+    Map<String, Object> createUserCreds(Map<String, Object> parameters) {
+        Map<String, Object> userCredentials = new HashMap<>();
+
+        userCredentials.put(SqlServerServiceInfo.DATABASE, parameters.get(SqlServerServiceInfo.DATABASE));
 
         //users can optionally pass in uids and passwords
-        userCredentials.put(SqlServerServiceInfo.USERNAME, createUserId(binding.getParameters().get(SqlServerServiceInfo.USERNAME)));
-        userCredentials.put(SqlServerServiceInfo.PASSWORD, createPassword(binding.getParameters().get(SqlServerServiceInfo.PASSWORD)));
-        userCredentials.put(SqlServerServiceInfo.DATABASE, db);
+        userCredentials.put(SqlServerServiceInfo.USERNAME, createUserId(parameters.get(SqlServerServiceInfo.USERNAME)));
+        userCredentials.put(SqlServerServiceInfo.PASSWORD, createPassword(parameters.get(SqlServerServiceInfo.PASSWORD)));
+        userCredentials.put(SqlServerServiceInfo.URI, getDbUrl(parameters.get(SqlServerServiceInfo.DATABASE)));
+
         log.debug("creds: " + userCredentials.toString());
 
-        jdbcTemplate.execute("USE [" + db + "]; CREATE USER ["
+        jdbcTemplate.execute("USE [" + userCredentials.get(SqlServerServiceInfo.DATABASE) + "]; CREATE USER ["
                 + userCredentials.get(SqlServerServiceInfo.USERNAME)
                 + "] WITH PASSWORD='" + userCredentials.get(SqlServerServiceInfo.PASSWORD)
                 + "', DEFAULT_SCHEMA=[dbo]; EXEC sp_addrolemember 'db_owner', '"

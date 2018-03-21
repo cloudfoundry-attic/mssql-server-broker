@@ -50,7 +50,7 @@ public class QuoteRepositoryPopulator implements ApplicationListener<ContextRefr
             ArrayList<Quote> q = objectMapper.readValue(jsonData,
                     new TypeReference<List<Quote>>() {
                     });
-            repository.save(q);
+            repository.saveAll(q);
 
         } catch (Exception e) {
             throw new RuntimeException(e);

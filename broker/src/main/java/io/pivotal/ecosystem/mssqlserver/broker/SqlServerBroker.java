@@ -15,92 +15,154 @@
 package io.pivotal.ecosystem.mssqlserver.broker;
 
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
-import io.pivotal.ecosystem.servicebroker.model.LastOperation;
-import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
-import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
-import io.pivotal.ecosystem.servicebroker.service.DefaultServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingDoesNotExistException;
+import org.springframework.cloud.servicebroker.exception.ServiceInstanceDoesNotExistException;
+import org.springframework.cloud.servicebroker.exception.ServiceInstanceExistsException;
+import org.springframework.cloud.servicebroker.model.binding.*;
+import org.springframework.cloud.servicebroker.model.instance.*;
+import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService;
+import org.springframework.cloud.servicebroker.service.ServiceInstanceService;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
-class SqlServerBroker extends DefaultServiceImpl {
+public class SqlServerBroker implements ServiceInstanceService, ServiceInstanceBindingService {
 
-    private SqlServerClient client;
+    private SqlServerClient sqlServerClient;
+    private ServiceInstanceRepository serviceInstanceRepository;
+    private ServiceBindingRepository serviceBindingRepository;
 
-
-    public SqlServerBroker(SqlServerClient client) {
+    public SqlServerBroker(SqlServerClient sqlServerClient, ServiceInstanceRepository serviceInstanceRepository, ServiceBindingRepository serviceBindingRepository) {
         super();
-        this.client = client;
+        this.sqlServerClient = sqlServerClient;
+        this.serviceInstanceRepository = serviceInstanceRepository;
+        this.serviceBindingRepository = serviceBindingRepository;
     }
 
     @Override
-    public LastOperation createInstance(ServiceInstance instance) {
+    public CreateServiceInstanceBindingResponse createServiceInstanceBinding(CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest) {
+        Optional<ServiceInstance> si = serviceInstanceRepository.findById(createServiceInstanceBindingRequest.getServiceInstanceId());
+        if (!si.isPresent()) {
+            throw new ServiceInstanceDoesNotExistException(createServiceInstanceBindingRequest.getServiceInstanceId());
+        }
+
+        ServiceBinding serviceBinding = new ServiceBinding(createServiceInstanceBindingRequest);
+        serviceBinding.setCredentials(sqlServerClient.createUserCreds(createServiceInstanceBindingRequest.getParameters()));
+        serviceBindingRepository.save(serviceBinding);
+
+        Map<String, Object> creds = new HashMap<>();
+        for (String s : serviceBinding.getCredentials().keySet()) {
+            creds.put(s, serviceBinding.getCredentials().get(s));
+        }
+
+        return CreateServiceInstanceAppBindingResponse.builder()
+                .credentials(creds)
+                .build();
+    }
+
+    @Override
+    public GetServiceInstanceBindingResponse getServiceInstanceBinding(GetServiceInstanceBindingRequest getServiceInstanceBindingRequest) {
+        Optional<ServiceBinding> sb = serviceBindingRepository.findById(getServiceInstanceBindingRequest.getBindingId());
+        if (!sb.isPresent()) {
+            throw new ServiceInstanceBindingDoesNotExistException(getServiceInstanceBindingRequest.getBindingId());
+        }
+
+        Map<String, Object> creds = new HashMap<>();
+        for (String s : sb.get().getCredentials().keySet()) {
+            creds.put(s, sb.get().getCredentials().get(s));
+        }
+
+        Map<String, Object> parms = new HashMap<>();
+        for (String s : sb.get().getParameters().keySet()) {
+            creds.put(s, sb.get().getParameters().get(s));
+        }
+
+        return GetServiceInstanceAppBindingResponse.builder()
+                .credentials(creds)
+                .parameters(parms)
+                .build();
+    }
+
+    @Override
+    public void deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest) {
+        if (!serviceInstanceRepository.existsById(deleteServiceInstanceBindingRequest.getServiceInstanceId())) {
+            throw new ServiceInstanceDoesNotExistException(deleteServiceInstanceBindingRequest.getServiceInstanceId());
+        }
+
+        Optional<ServiceBinding> sb = serviceBindingRepository.findById(deleteServiceInstanceBindingRequest.getBindingId());
+        if (!sb.isPresent()) {
+            throw new ServiceInstanceBindingDoesNotExistException(deleteServiceInstanceBindingRequest.getBindingId());
+        }
+
+        log.info("deleting binding: " + deleteServiceInstanceBindingRequest.getBindingId() + " for service instance: " + deleteServiceInstanceBindingRequest.getServiceInstanceId());
+        sqlServerClient.deleteUserCreds(sb.get().getParameters().get(SqlServerServiceInfo.USERNAME), sb.get().getParameters().get(SqlServerServiceInfo.DATABASE));
+        serviceBindingRepository.delete(sb.get());
+    }
+
+    @Override
+    public CreateServiceInstanceResponse createServiceInstance(CreateServiceInstanceRequest createServiceInstanceRequest) {
+        if (serviceInstanceRepository.existsById(createServiceInstanceRequest.getServiceInstanceId())) {
+            throw new ServiceInstanceExistsException(createServiceInstanceRequest.getServiceInstanceId(), createServiceInstanceRequest.getServiceDefinitionId());
+        }
+
+        ServiceInstance si = new ServiceInstance(createServiceInstanceRequest);
+
         log.info("creating database...");
 
         //user can optionally specify a db name
-        String db = client.createDatabase(instance);
-        instance.getParameters().put(SqlServerServiceInfo.DATABASE, db);
+        String db = sqlServerClient.createDatabase(si);
+        si.getParameters().put(SqlServerServiceInfo.DATABASE, db);
         log.info("database: " + db + " created.");
 
-        return new LastOperation(LastOperation.CREATE, LastOperation.SUCCEEDED, "create succeeded.");
+        log.info("saving service instance to repo: " + si.getId());
+        serviceInstanceRepository.save(si);
+
+        log.info("registered service instance: " + createServiceInstanceRequest.getServiceInstanceId());
+        return CreateServiceInstanceResponse.builder()
+                .operation(OperationState.SUCCEEDED.getValue())
+                .build();
     }
 
     @Override
-    public LastOperation deleteInstance(ServiceInstance instance) {
-        String db = instance.getParameters().get(SqlServerServiceInfo.DATABASE).toString();
-        log.info("deleting database: " + db);
-        client.deleteDatabase(db);
-
-        return new LastOperation(LastOperation.DELETE, LastOperation.SUCCEEDED, "delete succeeded.");
-    }
-
-    @Override
-    public LastOperation updateInstance(ServiceInstance instance) {
-        log.info("update not yet implemented");
-        return new LastOperation(LastOperation.UPDATE, LastOperation.FAILED, "update not implemented.");
-    }
-
-    @Override
-    public LastOperation createBinding(ServiceInstance instance, ServiceBinding binding) {
-        String db = instance.getParameters().get(SqlServerServiceInfo.DATABASE).toString();
-        binding.getParameters().put(SqlServerServiceInfo.DATABASE, db);
-
-        Map<String, String> userCredentials = client.createUserCreds(binding);
-        binding.getParameters().put(SqlServerServiceInfo.USERNAME, userCredentials.get(SqlServerServiceInfo.USERNAME));
-        binding.getParameters().put(SqlServerServiceInfo.PASSWORD, userCredentials.get(SqlServerServiceInfo.PASSWORD));
-
-        log.info("bound app: " + binding.getAppGuid() + " to database: " + db);
-
-        return new LastOperation(LastOperation.BIND, LastOperation.SUCCEEDED, "bind succeeded.");
-    }
-
-    @Override
-    public LastOperation deleteBinding(ServiceInstance instance, ServiceBinding binding) {
-        log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getParameters().get(SqlServerServiceInfo.DATABASE));
-        client.deleteUserCreds(binding.getParameters().get(SqlServerServiceInfo.USERNAME).toString(), binding.getParameters().get(SqlServerServiceInfo.DATABASE).toString());
-        return new LastOperation(LastOperation.UNBIND, LastOperation.SUCCEEDED, "unbind succeeded.");
-    }
-
-    @Override
-    public Map<String, Object> getCredentials(ServiceInstance instance, ServiceBinding binding) {
-        log.info("returning credentials.");
+    public GetServiceInstanceResponse getServiceInstance(GetServiceInstanceRequest request) {
+        log.info("retrieving service instance...");
+        Optional<ServiceInstance> si = serviceInstanceRepository.findById(request.getServiceInstanceId());
+        if (!si.isPresent()) {
+            throw new ServiceInstanceDoesNotExistException(request.getServiceInstanceId());
+        }
 
         Map<String, Object> m = new HashMap<>();
-        m.put(SqlServerServiceInfo.URI, client.getDbUrl(binding.getParameters().get(SqlServerServiceInfo.DATABASE).toString()));
+        for (String s : si.get().getParameters().keySet()) {
+            m.put(s, si.get().getParameters().get(s));
+        }
 
-        m.put(SqlServerServiceInfo.USERNAME, binding.getParameters().get(SqlServerServiceInfo.USERNAME));
-        m.put(SqlServerServiceInfo.PASSWORD, binding.getParameters().get(SqlServerServiceInfo.PASSWORD));
-        m.put(SqlServerServiceInfo.DATABASE, binding.getParameters().get(SqlServerServiceInfo.DATABASE));
-
-        return m;
+        return GetServiceInstanceResponse.builder()
+                .serviceDefinitionId(si.get().getServiceDefinitionId())
+                .planId(si.get().getPlanId())
+                .parameters(m)
+                .build();
     }
 
     @Override
-    public boolean isAsync() {
-        return false;
+    public DeleteServiceInstanceResponse deleteServiceInstance(DeleteServiceInstanceRequest deleteServiceInstanceRequest) {
+        Optional<ServiceInstance> si = serviceInstanceRepository.findById(deleteServiceInstanceRequest.getServiceInstanceId());
+        if (!si.isPresent()) {
+            throw new ServiceInstanceDoesNotExistException(deleteServiceInstanceRequest.getServiceInstanceId());
+        }
+
+        String db = si.get().getParameters().get(SqlServerServiceInfo.DATABASE);
+
+        log.info("deleting database: " + db);
+        sqlServerClient.deleteDatabase(db);
+        serviceInstanceRepository.delete(si.get());
+
+        return DeleteServiceInstanceResponse.builder()
+                .operation(OperationState.SUCCEEDED.getValue())
+                .build();
     }
 }
