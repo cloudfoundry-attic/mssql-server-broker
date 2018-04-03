@@ -17,6 +17,7 @@ package io.pivotal.ecosystem.mssqlserver.broker;
 import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceBindingRequest;
@@ -30,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-@EnableJpaRepositories
+//@EnableJpaRepositories
 class TestConfig {
 
     static final String SI_ID = "deleteme";
@@ -39,7 +40,6 @@ class TestConfig {
     private static final String PLAN_ID = "oneNodeCluster";
 
     static final String USER_ID = "aUser";
-    static final String DATABASE_ID = "aDatabase";
 
     @Value("${spring.datasource.url}")
     private String dbUrl;
@@ -55,11 +55,6 @@ class TestConfig {
 
         dataSource.setURL(dbUrl);
         return dataSource;
-    }
-
-    @Bean
-    public CatalogService catalogService() {
-        return new CatalogService();
     }
 
     @Bean
