@@ -2,11 +2,7 @@
 A cloud foundry service broker for Microsoft SQL Server.
 
 ## Using ms-sql-server-broker
-1. mssql-server-broker requires a redis datastore. To set this up:
-  ```bash
-  cf create-service p-redis shared-vm redis-for-mssql-server
-  ```
-2. The broker makes use of spring-security to protect itself against unauthorized meddling. To set its username and password edit the [manifest.yml](https://github.com/cf-platform-eng/mssql-server-broker/blob/master/broker/manifest.yml) file as needed for your CF install (you probably don't want to check this in!).
+1. The broker makes use of spring-security to protect itself against unauthorized meddling. To set its username and password edit the [manifest.yml](https://github.com/cf-platform-eng/mssql-server-broker/blob/master/broker/manifest.yml) file as needed for your CF install (you probably don't want to check this in!).
 
 1. check out and build the project
   ```bash

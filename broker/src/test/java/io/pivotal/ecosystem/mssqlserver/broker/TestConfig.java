@@ -31,12 +31,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-//@EnableJpaRepositories
 class TestConfig {
 
     static final String SI_ID = "deleteme";
     private static final String SB_ID = "deletemetoo";
-    private static final String SD_ID = "sqlserver";
+    static final String SD_ID = "SQLServer";
     private static final String PLAN_ID = "oneNodeCluster";
 
     static final String USER_ID = "aUser";

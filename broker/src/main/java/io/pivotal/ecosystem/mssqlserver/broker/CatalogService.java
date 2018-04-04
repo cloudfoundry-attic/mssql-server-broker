@@ -17,37 +17,35 @@
 
 package io.pivotal.ecosystem.mssqlserver.broker;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
 import org.springframework.cloud.servicebroker.model.catalog.Catalog;
+import org.springframework.cloud.servicebroker.model.catalog.Plan;
 import org.springframework.cloud.servicebroker.model.catalog.ServiceDefinition;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 @Service
 @Slf4j
 public class CatalogService implements org.springframework.cloud.servicebroker.service.CatalogService {
 
-    private Catalog catalog;
-
     @Override
     public Catalog getCatalog() {
-        if (catalog != null) {
-            return catalog;
-        }
 
-        try {
-            return loadCatalog();
-        } catch (Exception e) {
-            log.error("Error retrieving catalog.", e);
-            throw new ServiceBrokerException("Unable to retrieve catalog.", e);
-        }
+        return Catalog.builder()
+                .serviceDefinitions(
+                        ServiceDefinition.builder()
+                                .id("SQLServer")
+                                .name("SQLServer")
+                                .description("SQL Server Broker for Cloud Foundry")
+                                .bindable(true)
+                                .planUpdateable(false)
+                                .plans(Plan.builder()
+                                        .id("SQLServerSharedInstance")
+                                        .name("sharedVM")
+                                        .description("mvp service")
+                                        .bindable(true)
+                                        .free(true)
+                                        .build())
+                                .build()).build();
     }
 
     @Override
@@ -62,13 +60,5 @@ public class CatalogService implements org.springframework.cloud.servicebroker.s
             }
         }
         return null;
-    }
-
-    private Catalog loadCatalog() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        URI u = new ClassPathResource("catalog.json").getURI();
-        String s = new String(Files.readAllBytes(Paths.get(u)));
-        catalog = mapper.readValue(s, Catalog.class);
-        return catalog;
     }
 }
