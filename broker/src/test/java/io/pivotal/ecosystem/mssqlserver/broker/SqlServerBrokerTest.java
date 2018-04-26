@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingDoesNotExistException;
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceDoesNotExistException;
@@ -53,10 +54,12 @@ public class SqlServerBrokerTest {
     private ServiceInstanceRepository serviceInstanceRepository;
 
     @Autowired
-    private CreateServiceInstanceRequest createServiceInstanceRequest;
+    @Qualifier("custom")
+    private CreateServiceInstanceRequest createServiceInstanceCustomRequest;
 
     @Autowired
-    private CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest;
+    @Qualifier("custom")
+    private CreateServiceInstanceBindingRequest createServiceInstanceBindingCustomRequest;
 
     @Autowired
     private GetLastServiceOperationRequest getLastServiceOperationRequest;
@@ -101,8 +104,8 @@ public class SqlServerBrokerTest {
     }
 
     @Test
-    public void testLifecycle() {
-        CreateServiceInstanceResponse csir = instanceService.createServiceInstance(createServiceInstanceRequest);
+    public void testLifecycleCustom() {
+        CreateServiceInstanceResponse csir = instanceService.createServiceInstance(createServiceInstanceCustomRequest);
         assertNotNull(csir);
         assertEquals(OperationState.SUCCEEDED.getValue(), csir.getOperation());
         assertFalse(csir.isInstanceExisted());
@@ -123,7 +126,7 @@ public class SqlServerBrokerTest {
             //expected
         }
 
-        CreateServiceInstanceAppBindingResponse csiabr = (CreateServiceInstanceAppBindingResponse) bindingService.createServiceInstanceBinding(createServiceInstanceBindingRequest);
+        CreateServiceInstanceAppBindingResponse csiabr = (CreateServiceInstanceAppBindingResponse) bindingService.createServiceInstanceBinding(createServiceInstanceBindingCustomRequest);
         assertNotNull(csiabr);
         assertFalse(csiabr.isBindingExisted());
         Map<String, Object> m = csiabr.getCredentials();

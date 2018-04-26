@@ -34,8 +34,8 @@ class TestConfig {
 
     static final String SI_ID = "deleteme";
     private static final String SB_ID = "deletemetoo";
-    private static final String SD_ID = "SQLServer";
-    private static final String PLAN_ID = "oneNodeCluster";
+    static final String SD_ID = "SQLServer";
+    static final String PLAN_ID = "oneNodeCluster";
 
     static final String USER_ID = "aUser";
 
@@ -69,8 +69,8 @@ class TestConfig {
     @Qualifier("default")
     CreateServiceInstanceRequest createServiceInstanceDefaultRequest() {
         return CreateServiceInstanceRequest.builder()
-                .serviceDefinitionId(SD_ID)
                 .serviceInstanceId(SI_ID)
+                .serviceDefinitionId(SD_ID)
                 .planId(PLAN_ID)
                 .build();
     }
@@ -108,6 +108,7 @@ class TestConfig {
     @Qualifier("default")
     CreateServiceInstanceBindingRequest createServiceInstanceBindingDefaultRequest() {
         return CreateServiceInstanceBindingRequest.builder()
+                .serviceInstanceId(SI_ID)
                 .bindingId(SB_ID)
                 .serviceDefinitionId(SD_ID)
                 .serviceInstanceId(SI_ID)

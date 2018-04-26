@@ -114,8 +114,8 @@ class SqlServerClient {
             userCredentials.put(SqlServerServiceInfo.USERNAME, createUserId(bindingParameters.get(SqlServerServiceInfo.USERNAME)));
             userCredentials.put(SqlServerServiceInfo.PASSWORD, createPassword(bindingParameters.get(SqlServerServiceInfo.PASSWORD)));
         } else {
-            userCredentials.put(SqlServerServiceInfo.USERNAME, null);
-            userCredentials.put(SqlServerServiceInfo.PASSWORD, null);
+            userCredentials.put(SqlServerServiceInfo.USERNAME, createUserId(null));
+            userCredentials.put(SqlServerServiceInfo.PASSWORD, createPassword(null));
         }
 
         log.debug("creds: " + userCredentials.toString());

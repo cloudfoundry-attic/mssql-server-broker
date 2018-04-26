@@ -57,10 +57,6 @@ public class SqlServerClientTest {
     private CreateServiceInstanceBindingRequest createServiceInstanceBindingCustomRequest;
 
     @Autowired
-    @Qualifier("default")
-    private CreateServiceInstanceBindingRequest createServiceInstanceBindingDefaultRequest;
-
-    @Autowired
     private String dbUrl;
 
     @Before
@@ -126,11 +122,15 @@ public class SqlServerClientTest {
 
             //todo deal with all of this back and forth
             si.getParameters().put(SqlServerServiceInfo.DATABASE, db);
-            sqlServerClient.createUserCreds(si.getParameters(), null);
-            assertTrue(sqlServerClient.checkUserExists(TestConfig.USER_ID, TestConfig.SI_ID));
+            Map<String, Object> creds = sqlServerClient.createUserCreds(si.getParameters(), null);
+            assertNotNull(creds);
+            String user = creds.get(SqlServerServiceInfo.USERNAME).toString();
+            assertNotNull(user);
 
-            sqlServerClient.deleteUserCreds(TestConfig.USER_ID, TestConfig.SI_ID);
-            assertFalse(sqlServerClient.checkUserExists(TestConfig.USER_ID, TestConfig.SI_ID));
+            assertTrue(sqlServerClient.checkUserExists(user, db));
+
+            sqlServerClient.deleteUserCreds(user, db);
+            assertFalse(sqlServerClient.checkUserExists(user, db));
 
             sqlServerClient.deleteDatabase(db);
             assertFalse(sqlServerClient.checkDatabaseExists(TestConfig.SI_ID));
