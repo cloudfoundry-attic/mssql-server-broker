@@ -97,7 +97,7 @@ public class BindingService implements ServiceInstanceBindingService {
         }
 
         log.info("deleting binding: " + deleteServiceInstanceBindingRequest.getBindingId() + " for service instance: " + deleteServiceInstanceBindingRequest.getServiceInstanceId());
-        sqlServerClient.deleteUserCreds(sb.get().getParameters().get(SqlServerServiceInfo.USERNAME), si.get().getParameters().get(SqlServerServiceInfo.DATABASE));
+        sqlServerClient.deleteUserCreds(sb.get().getCredentials().get(SqlServerServiceInfo.USERNAME), si.get().getParameters().get(SqlServerServiceInfo.DATABASE));
         serviceBindingRepository.delete(sb.get());
     }
 }

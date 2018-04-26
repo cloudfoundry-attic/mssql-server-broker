@@ -5,12 +5,11 @@ applications:
   instances: 1
   buildpack: java_buildpack_offline
   path: target/mssql-server-broker.jar
-  services: [ redis-for-mssql-server  ]
   env:
     SPRING_PROFILES_ACTIVE: cloud
     SQL_HOST: host-name-here
     SQL_PORT: 1433
     SQLSERVER_USERNAME: mssql-server-sa-uid
-    SQLSERVER_PASSWORD: mssql-server-sa-password
-    SECURITY_USER_NAME: broker-uid
-    SECURITY_USER_PASSWORD: broker-password
+    SQLSERVER_PASSWORD: ssql-server-sa-password
+    SPRING_SECURITY_USER_NAME: broker-uid
+    SPRING_SECURITY_USER_PASSWORD: broker-pw
