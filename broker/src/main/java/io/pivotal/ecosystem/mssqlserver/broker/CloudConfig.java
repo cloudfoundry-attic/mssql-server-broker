@@ -17,6 +17,11 @@ package io.pivotal.ecosystem.mssqlserver.broker;
 import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
 import org.springframework.cloud.servicebroker.model.BrokerApiVersion;
+import org.springframework.cloud.servicebroker.model.catalog.Catalog;
+import org.springframework.cloud.servicebroker.model.catalog.Plan;
+import org.springframework.cloud.servicebroker.model.catalog.ServiceDefinition;
+import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService;
+import org.springframework.cloud.servicebroker.service.ServiceInstanceService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -49,5 +54,39 @@ public class CloudConfig {
     @Bean
     public BrokerApiVersion brokerApiVersion() {
         return new BrokerApiVersion();
+    }
+
+    @Bean
+    public Catalog catalog() {
+
+        return Catalog.builder()
+                .serviceDefinitions(
+                        ServiceDefinition.builder()
+                                .id("SQLServer")
+                                .name("SQLServer")
+                                .description("SQL Server Broker for Cloud Foundry")
+                                .bindable(true)
+                                .instancesRetrievable(true)
+                                .bindingsRetrievable(true)
+                                .planUpdateable(false)
+                                .plans(Plan.builder()
+                                        .id("SQLServerSharedInstance")
+                                        .name("sharedVM")
+                                        .description("mvp service")
+                                        .bindable(true)
+                                        .free(true)
+                                        .build())
+                                .build())
+                .build();
+    }
+
+    @Bean
+    public ServiceInstanceService serviceInstanceService(SqlServerClient sqlServerClient, ServiceInstanceRepository serviceInstanceRepository) {
+        return new InstanceService(sqlServerClient, serviceInstanceRepository);
+    }
+
+    @Bean
+    public ServiceInstanceBindingService serviceInstanceBindingService(SqlServerClient sqlServerClient, ServiceInstanceRepository serviceInstanceRepository, ServiceBindingRepository serviceBindingRepository) {
+        return new BindingService(sqlServerClient, serviceInstanceRepository, serviceBindingRepository);
     }
 }

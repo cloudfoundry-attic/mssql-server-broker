@@ -44,7 +44,10 @@ import static org.junit.Assert.*;
 public class SqlServerBrokerTest {
 
     @Autowired
-    private SqlServerBroker sqlServerBroker;
+    private InstanceService instanceService;
+
+    @Autowired
+    private BindingService bindingService;
 
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository;
@@ -99,35 +102,35 @@ public class SqlServerBrokerTest {
 
     @Test
     public void testLifecycle() {
-        CreateServiceInstanceResponse csir = sqlServerBroker.createServiceInstance(createServiceInstanceRequest);
+        CreateServiceInstanceResponse csir = instanceService.createServiceInstance(createServiceInstanceRequest);
         assertNotNull(csir);
         assertEquals(OperationState.SUCCEEDED.getValue(), csir.getOperation());
         assertFalse(csir.isInstanceExisted());
 
-        GetServiceInstanceResponse gsir = sqlServerBroker.getServiceInstance(getServiceInstanceRequest);
+        GetServiceInstanceResponse gsir = instanceService.getServiceInstance(getServiceInstanceRequest);
         assertNotNull(gsir);
         assertEquals(1, gsir.getParameters().size());
 
         try {
-            sqlServerBroker.getLastOperation(getLastServiceOperationRequest);
+            instanceService.getLastOperation(getLastServiceOperationRequest);
         } catch (UnsupportedOperationException e) {
             //expected
         }
 
         try {
-            sqlServerBroker.updateServiceInstance(updateServiceInstanceRequest);
+            instanceService.updateServiceInstance(updateServiceInstanceRequest);
         } catch (UnsupportedOperationException e) {
             //expected
         }
 
-        CreateServiceInstanceAppBindingResponse csiabr = (CreateServiceInstanceAppBindingResponse) sqlServerBroker.createServiceInstanceBinding(createServiceInstanceBindingRequest);
+        CreateServiceInstanceAppBindingResponse csiabr = (CreateServiceInstanceAppBindingResponse) bindingService.createServiceInstanceBinding(createServiceInstanceBindingRequest);
         assertNotNull(csiabr);
         assertFalse(csiabr.isBindingExisted());
         Map<String, Object> m = csiabr.getCredentials();
         assertNotNull(m);
         assertEquals(4, m.size());
 
-        GetServiceInstanceAppBindingResponse gsiabr = (GetServiceInstanceAppBindingResponse) sqlServerBroker.getServiceInstanceBinding(getServiceInstanceBindingRequest);
+        GetServiceInstanceAppBindingResponse gsiabr = (GetServiceInstanceAppBindingResponse) bindingService.getServiceInstanceBinding(getServiceInstanceBindingRequest);
         assertNotNull(gsiabr);
         Map<String, Object> m2 = gsiabr.getCredentials();
         assertNotNull(m2);
@@ -137,19 +140,19 @@ public class SqlServerBrokerTest {
         assertTrue(m2.get(SqlServerServiceInfo.URI).toString().startsWith("jdbc:sqlserver://"));
         assertEquals("deleteme", m2.get(SqlServerServiceInfo.DATABASE));
 
-        sqlServerBroker.deleteServiceInstanceBinding(deleteServiceInstanceBindingRequest);
+        bindingService.deleteServiceInstanceBinding(deleteServiceInstanceBindingRequest);
         try {
-            sqlServerBroker.getServiceInstanceBinding(getServiceInstanceBindingRequest);
+            bindingService.getServiceInstanceBinding(getServiceInstanceBindingRequest);
         } catch (ServiceInstanceBindingDoesNotExistException e) {
             //expected
         }
 
-        DeleteServiceInstanceResponse dsir = sqlServerBroker.deleteServiceInstance(deleteServiceInstanceRequest);
+        DeleteServiceInstanceResponse dsir = instanceService.deleteServiceInstance(deleteServiceInstanceRequest);
         assertNotNull(dsir);
         assertEquals(OperationState.SUCCEEDED.getValue(), dsir.getOperation());
 
         try {
-            sqlServerBroker.getServiceInstance(getServiceInstanceRequest);
+            instanceService.getServiceInstance(getServiceInstanceRequest);
         } catch (ServiceInstanceDoesNotExistException e) {
             //expected
         }

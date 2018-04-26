@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
 import org.springframework.cloud.servicebroker.model.instance.GetServiceInstanceRequest;
@@ -45,9 +46,13 @@ public class ServiceInstanceTest {
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository;
 
+    @Autowired
+    @Qualifier("custom")
+    private CreateServiceInstanceRequest createServiceInstanceCustomRequest;
 
     @Autowired
-    private CreateServiceInstanceRequest createServiceInstanceRequest;
+    @Qualifier("default")
+    private CreateServiceInstanceRequest createServiceInstanceDefaultRequest;
 
     @Autowired
     private GetServiceInstanceRequest getServiceInstanceRequest;
@@ -70,12 +75,13 @@ public class ServiceInstanceTest {
     }
 
     @Test
-    public void testCrud() {
-        ServiceInstance si = new ServiceInstance(createServiceInstanceRequest);
+    public void testCrudCustom() {
+        ServiceInstance si = new ServiceInstance(createServiceInstanceCustomRequest);
         assertNotNull(si);
         assertEquals(1, si.getParameters().size());
 
         assertNotNull(serviceInstanceRepository.save(si));
+        assertEquals(TestConfig.SI_ID, si.getId());
 
         assertTrue(serviceInstanceRepository.existsById(si.getId()));
 
@@ -95,5 +101,33 @@ public class ServiceInstanceTest {
         serviceInstanceRepository.delete(si4.get());
 
         assertFalse(serviceInstanceRepository.existsById(si.getId()));
+    }
+
+    @Test
+    public void testCrudDefault() {
+        String id = null;
+        try {
+            ServiceInstance si = new ServiceInstance(createServiceInstanceDefaultRequest);
+            assertNotNull(si);
+
+            assertNotNull(serviceInstanceRepository.save(si));
+            id = si.getId();
+
+            assertTrue(serviceInstanceRepository.existsById(si.getId()));
+
+            Optional<ServiceInstance> si3 = serviceInstanceRepository.findById(id);
+            assertTrue(si3.isPresent());
+
+            serviceInstanceRepository.delete(si3.get());
+
+            assertFalse(serviceInstanceRepository.existsById(si.getId()));
+        } finally {
+            if (id != null) {
+                Optional<ServiceInstance> si = serviceInstanceRepository.findById(id);
+                if (si.isPresent()) {
+                    serviceInstanceRepository.delete(si.get());
+                }
+            }
+        }
     }
 }

@@ -103,15 +103,20 @@ class SqlServerClient {
         return "d" + getRandomishId();
     }
 
-    Map<String, Object> createUserCreds(Map<String, Object> parameters) {
+    Map<String, Object> createUserCreds(Map<String, String> instanceParameters, Map<String, Object> bindingParameters) {
         Map<String, Object> userCredentials = new HashMap<>();
 
-        userCredentials.put(SqlServerServiceInfo.DATABASE, parameters.get(SqlServerServiceInfo.DATABASE));
+        userCredentials.put(SqlServerServiceInfo.DATABASE, instanceParameters.get(SqlServerServiceInfo.DATABASE));
+        userCredentials.put(SqlServerServiceInfo.URI, getDbUrl(instanceParameters.get(SqlServerServiceInfo.DATABASE)));
 
-        //users can optionally pass in uids and passwords
-        userCredentials.put(SqlServerServiceInfo.USERNAME, createUserId(parameters.get(SqlServerServiceInfo.USERNAME)));
-        userCredentials.put(SqlServerServiceInfo.PASSWORD, createPassword(parameters.get(SqlServerServiceInfo.PASSWORD)));
-        userCredentials.put(SqlServerServiceInfo.URI, getDbUrl(parameters.get(SqlServerServiceInfo.DATABASE)));
+        if (bindingParameters != null) {
+            //users can optionally pass in uids and passwords
+            userCredentials.put(SqlServerServiceInfo.USERNAME, createUserId(bindingParameters.get(SqlServerServiceInfo.USERNAME)));
+            userCredentials.put(SqlServerServiceInfo.PASSWORD, createPassword(bindingParameters.get(SqlServerServiceInfo.PASSWORD)));
+        } else {
+            userCredentials.put(SqlServerServiceInfo.USERNAME, null);
+            userCredentials.put(SqlServerServiceInfo.PASSWORD, null);
+        }
 
         log.debug("creds: " + userCredentials.toString());
 

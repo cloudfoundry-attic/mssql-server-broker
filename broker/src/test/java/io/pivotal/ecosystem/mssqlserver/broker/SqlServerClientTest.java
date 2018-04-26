@@ -14,11 +14,13 @@
 
 package io.pivotal.ecosystem.mssqlserver.broker;
 
+import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
@@ -28,8 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * "ignore" this test, or set the correct url in the src/test/resources/application.properties
@@ -44,10 +45,20 @@ public class SqlServerClientTest {
     private SqlServerClient sqlServerClient;
 
     @Autowired
-    private CreateServiceInstanceRequest createServiceInstanceRequest;
+    @Qualifier("custom")
+    private CreateServiceInstanceRequest createServiceInstanceCustomRequest;
 
     @Autowired
-    private CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest;
+    @Qualifier("default")
+    private CreateServiceInstanceRequest createServiceInstanceDefaultRequest;
+
+    @Autowired
+    @Qualifier("custom")
+    private CreateServiceInstanceBindingRequest createServiceInstanceBindingCustomRequest;
+
+    @Autowired
+    @Qualifier("default")
+    private CreateServiceInstanceBindingRequest createServiceInstanceBindingDefaultRequest;
 
     @Autowired
     private String dbUrl;
@@ -69,26 +80,29 @@ public class SqlServerClientTest {
     }
 
     @Test
-    public void testDBLifecycle() {
+    public void testDBCustomLifecycle() {
 
         assertFalse(sqlServerClient.checkDatabaseExists(TestConfig.SI_ID));
 
-        ServiceInstance si = new ServiceInstance(createServiceInstanceRequest);
+        ServiceInstance si = new ServiceInstance(createServiceInstanceCustomRequest);
 
         sqlServerClient.createDatabase(si);
         assertTrue(sqlServerClient.checkDatabaseExists(TestConfig.SI_ID));
 
         assertFalse(sqlServerClient.checkUserExists(TestConfig.USER_ID, TestConfig.SI_ID));
 
-        ServiceBinding sb = new ServiceBinding(createServiceInstanceBindingRequest);
+        ServiceBinding sb = new ServiceBinding(createServiceInstanceBindingCustomRequest);
 
-        Map<String, Object> m = new HashMap<>();
+        Map<String, Object> bindingParameters = new HashMap<>();
         for (String s : sb.getParameters().keySet()) {
-            m.put(s, sb.getParameters().get(s));
+            bindingParameters.put(s, sb.getParameters().get(s));
         }
 
+        Map<String, String> instanceParameters = new HashMap<>();
+        instanceParameters.put(SqlServerServiceInfo.DATABASE, TestConfig.SI_ID);
+
         //todo deal with all of this back and forth
-        sqlServerClient.createUserCreds(m);
+        sqlServerClient.createUserCreds(instanceParameters, bindingParameters);
         assertTrue(sqlServerClient.checkUserExists(TestConfig.USER_ID, TestConfig.SI_ID));
 
         sqlServerClient.deleteUserCreds(TestConfig.USER_ID, TestConfig.SI_ID);
@@ -97,6 +111,36 @@ public class SqlServerClientTest {
         sqlServerClient.deleteDatabase(TestConfig.SI_ID);
         assertFalse(sqlServerClient.checkDatabaseExists(TestConfig.SI_ID));
     }
+
+    @Test
+    public void testDBDefaultLifecycle() {
+        String db = null;
+        try {
+            ServiceInstance si = new ServiceInstance(createServiceInstanceDefaultRequest);
+
+            db = sqlServerClient.createDatabase(si);
+            assertNotNull(db);
+
+            assertTrue(sqlServerClient.checkDatabaseExists(db));
+            assertFalse(sqlServerClient.checkUserExists(TestConfig.USER_ID, db));
+
+            //todo deal with all of this back and forth
+            si.getParameters().put(SqlServerServiceInfo.DATABASE, db);
+            sqlServerClient.createUserCreds(si.getParameters(), null);
+            assertTrue(sqlServerClient.checkUserExists(TestConfig.USER_ID, TestConfig.SI_ID));
+
+            sqlServerClient.deleteUserCreds(TestConfig.USER_ID, TestConfig.SI_ID);
+            assertFalse(sqlServerClient.checkUserExists(TestConfig.USER_ID, TestConfig.SI_ID));
+
+            sqlServerClient.deleteDatabase(db);
+            assertFalse(sqlServerClient.checkDatabaseExists(TestConfig.SI_ID));
+        } finally {
+            if (db != null && sqlServerClient.checkDatabaseExists(db)) {
+                sqlServerClient.deleteDatabase(db);
+            }
+        }
+    }
+
 
     @Test
     public void testGetDbUrl() {

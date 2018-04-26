@@ -16,15 +16,14 @@ package io.pivotal.ecosystem.mssqlserver.broker;
 
 import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.instance.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -35,7 +34,7 @@ class TestConfig {
 
     static final String SI_ID = "deleteme";
     private static final String SB_ID = "deletemetoo";
-    static final String SD_ID = "SQLServer";
+    private static final String SD_ID = "SQLServer";
     private static final String PLAN_ID = "oneNodeCluster";
 
     static final String USER_ID = "aUser";
@@ -49,6 +48,16 @@ class TestConfig {
     }
 
     @Bean
+    public InstanceService instanceService(SqlServerClient sqlServerClient, ServiceInstanceRepository serviceInstanceRepository) {
+        return new InstanceService(sqlServerClient, serviceInstanceRepository);
+    }
+
+    @Bean
+    public BindingService bindingService(SqlServerClient sqlServerClient, ServiceInstanceRepository serviceInstanceRepository, ServiceBindingRepository serviceBindingRepository) {
+        return new BindingService(sqlServerClient, serviceInstanceRepository, serviceBindingRepository);
+    }
+
+    @Bean
     public DataSource datasource() {
         SQLServerConnectionPoolDataSource dataSource = new SQLServerConnectionPoolDataSource();
 
@@ -57,7 +66,18 @@ class TestConfig {
     }
 
     @Bean
-    CreateServiceInstanceRequest createServiceInstanceRequest() {
+    @Qualifier("default")
+    CreateServiceInstanceRequest createServiceInstanceDefaultRequest() {
+        return CreateServiceInstanceRequest.builder()
+                .serviceDefinitionId(SD_ID)
+                .serviceInstanceId(SI_ID)
+                .planId(PLAN_ID)
+                .build();
+    }
+
+    @Bean
+    @Qualifier("custom")
+    CreateServiceInstanceRequest createServiceInstanceCustomRequest() {
         Map<String, Object> m = new HashMap<>();
         m.put(SqlServerServiceInfo.DATABASE, SI_ID);
 
@@ -70,10 +90,10 @@ class TestConfig {
     }
 
     @Bean
-    CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest() {
+    @Qualifier("custom")
+    CreateServiceInstanceBindingRequest createServiceInstanceBindingCustomRequest() {
         Map<String, Object> m = new HashMap<>();
         m.put(SqlServerServiceInfo.USERNAME, USER_ID);
-        m.put(SqlServerServiceInfo.DATABASE, SI_ID);
 
         return CreateServiceInstanceBindingRequest.builder()
                 .bindingId(SB_ID)
@@ -81,6 +101,17 @@ class TestConfig {
                 .serviceInstanceId(SI_ID)
                 .planId(PLAN_ID)
                 .parameters(m)
+                .build();
+    }
+
+    @Bean
+    @Qualifier("default")
+    CreateServiceInstanceBindingRequest createServiceInstanceBindingDefaultRequest() {
+        return CreateServiceInstanceBindingRequest.builder()
+                .bindingId(SB_ID)
+                .serviceDefinitionId(SD_ID)
+                .serviceInstanceId(SI_ID)
+                .planId(PLAN_ID)
                 .build();
     }
 
@@ -106,7 +137,7 @@ class TestConfig {
     }
 
     @Bean
-    GetServiceInstanceBindingRequest GetServiceInstanceBindingRequest() {
+    GetServiceInstanceBindingRequest getServiceInstanceBindingRequest() {
         return GetServiceInstanceBindingRequest.builder()
                 .serviceInstanceId(SI_ID)
                 .bindingId(SB_ID)
