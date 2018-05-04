@@ -17,6 +17,7 @@ package io.pivotal.ecosystem.mssqlserver.broker;
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ import static org.junit.Assert.*;
  * "ignore" this test, or set the correct url in the src/test/resources/application.properties
  * file to test connectivity
  */
-
+@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SqlServerClientTest {

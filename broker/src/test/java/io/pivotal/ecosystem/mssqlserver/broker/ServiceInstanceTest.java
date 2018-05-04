@@ -16,6 +16,7 @@ package io.pivotal.ecosystem.mssqlserver.broker;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ import static org.junit.Assert.*;
  * have a test SQL Server available. You will need to edit the application.properties file in src/test/resources to
  * add your SQL Server environment data for this test to work.
  */
-
+@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class ServiceInstanceTest {
