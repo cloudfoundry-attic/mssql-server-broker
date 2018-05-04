@@ -2,7 +2,6 @@
 A cloud foundry service broker for Microsoft SQL Server.
 
 ## Using ms-sql-server-broker
-1. The broker makes use of spring-security to protect itself against unauthorized meddling. To set its username and password edit the [manifest.yml](https://github.com/cf-platform-eng/mssql-server-broker/blob/master/broker/manifest.yml) file as needed for your CF install (you probably don't want to check this in!).
 
 1. check out and build the project
   ```bash
@@ -10,16 +9,17 @@ A cloud foundry service broker for Microsoft SQL Server.
   cd mssql-server-broker
   mvn clean install  
   ```
-4. Push the broker to cf:
+2. The broker makes use of spring-security to protect itself against unauthorized meddling. To set its username and password edit the [manifest.yml](https://github.com/cf-platform-eng/mssql-server-broker/blob/master/broker/manifest.yml) file as needed for your CF install (you probably don't want to check this in!).
+3. Push the broker to cf:
   ```bash
   cd broker
   cf push
   ```
-5. Register the broker. The broker makes use of spring-security to protect itself against unauthorized meddling. For more information, please see [here](https://github.com/cloudfoundry-community/spring-boot-cf-service-broker#security).
+4. Register the broker. The broker makes use of spring-security to protect itself against unauthorized meddling. For more information, please see [here](https://github.com/cloudfoundry-community/spring-boot-cf-service-broker#security).
   ```bash
   cf create-service-broker SQLServer userNameFromManifestFile passwordFromManifestFile https://uri.of.your.broker.app
   ```
-6. See the broker:
+5. See the broker:
   ```bash
   cf service-brokers
   Getting service brokers as admin...
@@ -28,7 +28,7 @@ A cloud foundry service broker for Microsoft SQL Server.
   SQLServer                     https://your-broker-url
   ...
   ```
-7. Enable access to the broker:
+6. Enable access to the broker:
   ```bash
   cf service-access
   Getting service access as admin...
