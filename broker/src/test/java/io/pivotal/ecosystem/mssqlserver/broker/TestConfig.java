@@ -14,42 +14,30 @@
 
 package io.pivotal.ecosystem.mssqlserver.broker;
 
-import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
-import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
-import io.pivotal.ecosystem.servicebroker.service.CatalogService;
-import io.pivotal.ecosystem.servicebroker.service.ServiceBindingRepository;
-import io.pivotal.ecosystem.servicebroker.service.ServiceInstanceRepository;
+import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.instance.*;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-@ComponentScan(basePackages = {"io.pivotal.ecosystem.mssqlserver.broker", "io.pivotal.ecosystem.servicebroker.service"})
 class TestConfig {
 
     static final String SI_ID = "deleteme";
-    private static final String SD_ID = "sqlserver";
-    private static final String PLAN_ID = "oneNodeCluster";
+    private static final String SB_ID = "deletemetoo";
+    static final String SD_ID = "SQLServer";
+    static final String PLAN_ID = "oneNodeCluster";
 
-    private static final String ORG_GUID = "anOrgGuid";
-    private static final String SPACE_GUID = "aSpaceGuid";
-    private static final String APP_GUID = "anAppGuid";
-
-    private static final String USER_ID = "aUser";
-
-    @MockBean
-    public ServiceInstanceRepository serviceInstanceRepository;
-
-    @MockBean
-    public ServiceBindingRepository serviceBindingRepository;
+    static final String USER_ID = "aUser";
 
     @Value("${spring.datasource.url}")
     private String dbUrl;
@@ -60,31 +48,115 @@ class TestConfig {
     }
 
     @Bean
-    public CatalogService catalogService() {
-        return new CatalogService();
+    public InstanceService instanceService(SqlServerClient sqlServerClient, ServiceInstanceRepository serviceInstanceRepository) {
+        return new InstanceService(sqlServerClient, serviceInstanceRepository);
     }
 
     @Bean
-    ServiceInstance serviceInstance() {
+    public BindingService bindingService(SqlServerClient sqlServerClient, ServiceInstanceRepository serviceInstanceRepository, ServiceBindingRepository serviceBindingRepository) {
+        return new BindingService(sqlServerClient, serviceInstanceRepository, serviceBindingRepository);
+    }
+
+    @Bean
+    public DataSource datasource() {
+        SQLServerConnectionPoolDataSource dataSource = new SQLServerConnectionPoolDataSource();
+
+        dataSource.setURL(dbUrl);
+        return dataSource;
+    }
+
+    @Bean
+    @Qualifier("default")
+    CreateServiceInstanceRequest createServiceInstanceDefaultRequest() {
+        return CreateServiceInstanceRequest.builder()
+                .serviceInstanceId(SI_ID)
+                .serviceDefinitionId(SD_ID)
+                .planId(PLAN_ID)
+                .build();
+    }
+
+    @Bean
+    @Qualifier("custom")
+    CreateServiceInstanceRequest createServiceInstanceCustomRequest() {
         Map<String, Object> m = new HashMap<>();
         m.put(SqlServerServiceInfo.DATABASE, SI_ID);
 
-        CreateServiceInstanceRequest req = new CreateServiceInstanceRequest(SD_ID, PLAN_ID, ORG_GUID, SPACE_GUID, m);
-        req.withServiceInstanceId(SI_ID);
-        req.withAsyncAccepted(true);
-
-        return new ServiceInstance(req);
+        return CreateServiceInstanceRequest.builder()
+                .serviceDefinitionId(SD_ID)
+                .serviceInstanceId(SI_ID)
+                .planId(PLAN_ID)
+                .parameters(m)
+                .build();
     }
 
     @Bean
-    ServiceBinding serviceBinding() {
+    @Qualifier("custom")
+    CreateServiceInstanceBindingRequest createServiceInstanceBindingCustomRequest() {
         Map<String, Object> m = new HashMap<>();
         m.put(SqlServerServiceInfo.USERNAME, USER_ID);
-        m.put(SqlServerServiceInfo.DATABASE, SI_ID);
 
-        CreateServiceInstanceBindingRequest req = new CreateServiceInstanceBindingRequest(SD_ID, PLAN_ID, APP_GUID, null, m);
-        req.withServiceInstanceId(SI_ID);
+        return CreateServiceInstanceBindingRequest.builder()
+                .bindingId(SB_ID)
+                .serviceDefinitionId(SD_ID)
+                .serviceInstanceId(SI_ID)
+                .planId(PLAN_ID)
+                .parameters(m)
+                .build();
+    }
 
-        return new ServiceBinding(req);
+    @Bean
+    @Qualifier("default")
+    CreateServiceInstanceBindingRequest createServiceInstanceBindingDefaultRequest() {
+        return CreateServiceInstanceBindingRequest.builder()
+                .serviceInstanceId(SI_ID)
+                .bindingId(SB_ID)
+                .serviceDefinitionId(SD_ID)
+                .serviceInstanceId(SI_ID)
+                .planId(PLAN_ID)
+                .build();
+    }
+
+    @Bean
+    GetServiceInstanceRequest getServiceInstanceRequest() {
+        return GetServiceInstanceRequest.builder()
+                .serviceInstanceId(SI_ID)
+                .build();
+    }
+
+    @Bean
+    GetLastServiceOperationRequest getLastServiceOperationRequest() {
+        return GetLastServiceOperationRequest.builder()
+                .serviceInstanceId(SI_ID)
+                .build();
+    }
+
+    @Bean
+    UpdateServiceInstanceRequest updateServiceInstanceRequest() {
+        return UpdateServiceInstanceRequest.builder()
+                .serviceInstanceId(SI_ID)
+                .build();
+    }
+
+    @Bean
+    GetServiceInstanceBindingRequest getServiceInstanceBindingRequest() {
+        return GetServiceInstanceBindingRequest.builder()
+                .serviceInstanceId(SI_ID)
+                .bindingId(SB_ID)
+                .build();
+    }
+
+    @Bean
+    DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest() {
+        return DeleteServiceInstanceBindingRequest.builder()
+                .serviceInstanceId(SI_ID)
+                .bindingId(SB_ID)
+                .build();
+    }
+
+    @Bean
+    DeleteServiceInstanceRequest deleteServiceInstanceRequest() {
+        return DeleteServiceInstanceRequest.builder()
+                .serviceInstanceId(SI_ID)
+                .build();
     }
 }

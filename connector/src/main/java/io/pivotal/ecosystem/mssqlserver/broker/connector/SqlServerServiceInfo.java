@@ -39,6 +39,10 @@ public class SqlServerServiceInfo implements ServiceInfo {
     public static final String USER_KEY = "SQLSERVER_USERNAME";
     public static final String PW_KEY = "SQLSERVER_PASSWORD";
 
+    //spring security keys
+    public static final String SPRING_SECURITY_USER_KEY = "SPRING_SECURITY_USER_NAME";
+    public static final String SPRING_SECURITY_PW_KEY = "SPRING_SECURITY_USER_PASSWORD";
+
     private String id;
     private String user;
     private String password;
