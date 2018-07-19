@@ -16,14 +16,12 @@ package io.pivotal.ecosystem.mssqlserver.broker;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
-import org.springframework.cloud.servicebroker.model.instance.GetServiceInstanceRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
@@ -31,18 +29,9 @@ import java.util.Optional;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
-/**
- * test will create and delete a cluster on a SQL Server. @Ignore tests unless you are doing integration testing and
- * have a test SQL Server available. You will need to edit the application.properties file in src/test/resources to
- * add your SQL Server environment data for this test to work.
- */
-@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class ServiceInstanceTest {
-
-    @Autowired
-    private SqlServerClient sqlServerClient;
 
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository;
@@ -54,9 +43,6 @@ public class ServiceInstanceTest {
     @Autowired
     @Qualifier("default")
     private CreateServiceInstanceRequest createServiceInstanceDefaultRequest;
-
-    @Autowired
-    private GetServiceInstanceRequest getServiceInstanceRequest;
 
     @Before
     public void setUp() {

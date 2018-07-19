@@ -52,7 +52,7 @@ public class InstanceService implements ServiceInstanceService {
         si.getParameters().put(SqlServerServiceInfo.DATABASE, db);
         log.info("database: " + db + " created.");
 
-        log.info("saving service instance to repo: " + si.getId());
+        log.info("saving service instance to repo.");
         serviceInstanceRepository.save(si);
 
         log.info("registered service instance: " + createServiceInstanceRequest.getServiceInstanceId());

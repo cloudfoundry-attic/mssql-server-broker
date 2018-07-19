@@ -17,7 +17,6 @@ package io.pivotal.ecosystem.mssqlserver.broker;
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +36,10 @@ import static org.junit.Assert.*;
  * "ignore" this test, or set the correct url in the src/test/resources/application.properties
  * file to test connectivity
  */
-@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SqlServerClientTest {
 
-    @Autowired
     private SqlServerClient sqlServerClient;
 
     @Autowired
@@ -60,8 +57,12 @@ public class SqlServerClientTest {
     @Autowired
     private String dbUrl;
 
+    @Autowired
+    private Sqlinator h2;
+
     @Before
     public void setUp() {
+        sqlServerClient = new SqlServerClient(dbUrl, h2);
         reset();
     }
 

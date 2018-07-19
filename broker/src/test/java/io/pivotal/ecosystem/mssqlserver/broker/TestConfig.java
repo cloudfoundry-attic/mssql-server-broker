@@ -14,7 +14,6 @@
 
 package io.pivotal.ecosystem.mssqlserver.broker;
 
-import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,8 +23,8 @@ import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceB
 import org.springframework.cloud.servicebroker.model.instance.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +47,11 @@ class TestConfig {
     }
 
     @Bean
+    public Sqlinator sqlinator(JdbcTemplate jdbcTemplate) {
+        return new H2Sql(jdbcTemplate);
+    }
+
+    @Bean
     public InstanceService instanceService(SqlServerClient sqlServerClient, ServiceInstanceRepository serviceInstanceRepository) {
         return new InstanceService(sqlServerClient, serviceInstanceRepository);
     }
@@ -55,14 +59,6 @@ class TestConfig {
     @Bean
     public BindingService bindingService(SqlServerClient sqlServerClient, ServiceInstanceRepository serviceInstanceRepository, ServiceBindingRepository serviceBindingRepository) {
         return new BindingService(sqlServerClient, serviceInstanceRepository, serviceBindingRepository);
-    }
-
-    @Bean
-    public DataSource datasource() {
-        SQLServerConnectionPoolDataSource dataSource = new SQLServerConnectionPoolDataSource();
-
-        dataSource.setURL(dbUrl);
-        return dataSource;
     }
 
     @Bean
