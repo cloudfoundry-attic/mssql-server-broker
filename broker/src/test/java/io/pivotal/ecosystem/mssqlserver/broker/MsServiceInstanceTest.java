@@ -16,12 +16,14 @@ package io.pivotal.ecosystem.mssqlserver.broker;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
@@ -29,9 +31,18 @@ import java.util.Optional;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
+/**
+ * "ignore" this test, or set the correct url in the src/test/resources/ms.properties
+ * file to test connectivity
+ */
+@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class ServiceInstanceTest {
+@Import(MsConfig.class)
+public class MsServiceInstanceTest {
+
+    @Autowired
+    private SqlServerClient sqlServerClient;
 
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository;
@@ -55,7 +66,7 @@ public class ServiceInstanceTest {
     }
 
     private void reset() {
-        Optional<ServiceInstance> si = serviceInstanceRepository.findById(TestConfig.SI_ID);
+        Optional<ServiceInstance> si = serviceInstanceRepository.findById(SharedConfig.SI_ID);
         if (si.isPresent()) {
             serviceInstanceRepository.delete(si.get());
         }
@@ -68,7 +79,7 @@ public class ServiceInstanceTest {
         assertEquals(1, si.getParameters().size());
 
         assertNotNull(serviceInstanceRepository.save(si));
-        assertEquals(TestConfig.SI_ID, si.getId());
+        assertEquals(SharedConfig.SI_ID, si.getId());
 
         assertTrue(serviceInstanceRepository.existsById(si.getId()));
 

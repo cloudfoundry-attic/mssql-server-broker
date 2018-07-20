@@ -18,6 +18,7 @@ import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
 import org.h2.tools.DeleteDbFiles;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,19 +28,33 @@ import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingD
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceDoesNotExistException;
 import org.springframework.cloud.servicebroker.model.binding.*;
 import org.springframework.cloud.servicebroker.model.instance.*;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
+/**
+ * "ignore" this test, or set the correct url in the src/test/resources/ms.properties
+ * file to test connectivity
+ */
+@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class SqlServerBrokerTest {
+@Import(MsConfig.class)
+public class MsSqlServerBrokerTest {
+
+    @Autowired
+    private SqlServerClient sqlServerClient;
 
     @Autowired
     private InstanceService instanceService;
+
+    @Autowired
+    private ServiceInstanceRepository serviceInstanceRepository;
 
     @Autowired
     private BindingService bindingService;
@@ -81,7 +96,14 @@ public class SqlServerBrokerTest {
     }
 
     private void reset() {
-        DeleteDbFiles.execute(".", "test", true);
+        if (sqlServerClient.checkDatabaseExists(SharedConfig.SI_ID)) {
+            sqlServerClient.deleteDatabase(SharedConfig.SI_ID);
+        }
+
+        Optional<ServiceInstance> si = serviceInstanceRepository.findById(SharedConfig.SI_ID);
+        if (si.isPresent()) {
+            serviceInstanceRepository.delete(si.get());
+        }
     }
 
     @Test
@@ -121,7 +143,7 @@ public class SqlServerBrokerTest {
         assertEquals(4, m.size());
         assertEquals("aUser", m2.get(SqlServerServiceInfo.USERNAME));
         assertNotNull(m2.get(SqlServerServiceInfo.URI));
-        assertTrue(m2.get(SqlServerServiceInfo.URI).toString().startsWith("jdbc:h2:"));
+        assertTrue(m2.get(SqlServerServiceInfo.URI).toString().startsWith("jdbc:sqlserver:"));
         assertEquals("deleteme", m2.get(SqlServerServiceInfo.DATABASE));
 
         bindingService.deleteServiceInstanceBinding(deleteServiceInstanceBindingRequest);

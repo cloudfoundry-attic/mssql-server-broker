@@ -26,6 +26,7 @@ public class SqlServerSql implements Sqlinator {
     }
 
     public boolean databaseExists(String db) {
+        jdbcTemplate.execute("USE [MASTER];");
         return jdbcTemplate.queryForObject("SELECT count(*) FROM sys.databases WHERE name = ?",
                 new Object[]{db}, Integer.class) > 0;
     }
@@ -35,14 +36,16 @@ public class SqlServerSql implements Sqlinator {
                 + userCredentials.get(SqlServerServiceInfo.USERNAME)
                 + "] WITH PASSWORD='" + userCredentials.get(SqlServerServiceInfo.PASSWORD)
                 + "', DEFAULT_SCHEMA=[dbo]; EXEC sp_addrolemember 'db_owner', '"
-                + userCredentials.get(SqlServerServiceInfo.USERNAME) + "'");
+                + userCredentials.get(SqlServerServiceInfo.USERNAME) + "'; USE [MASTER]");
     }
 
     public void userDelete(String db, String uid) {
-        jdbcTemplate.execute("use " + db + "; DROP USER IF EXISTS " + uid);
+        jdbcTemplate.execute("USE [" + db + "]; DROP USER IF EXISTS " + uid + "; USE [MASTER]");
     }
 
     public boolean userExists(String db, String uid) {
-        return jdbcTemplate.queryForObject("use " + db + "; SELECT count(name) FROM sys.database_principals WHERE name = ?", new Object[]{uid}, Integer.class) > 0;
+        boolean b = jdbcTemplate.queryForObject("USE [" + db + "]; SELECT count(name) FROM sys.database_principals WHERE name = ?", new Object[]{uid}, Integer.class) > 0;
+        jdbcTemplate.execute("USE [MASTER]");
+        return b;
     }
 }
