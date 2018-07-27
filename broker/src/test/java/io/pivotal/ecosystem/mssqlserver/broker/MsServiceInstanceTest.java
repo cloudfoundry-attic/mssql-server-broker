@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
-import org.springframework.cloud.servicebroker.model.instance.GetServiceInstanceRequest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
@@ -32,14 +32,14 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
 /**
- * test will create and delete a cluster on a SQL Server. @Ignore tests unless you are doing integration testing and
- * have a test SQL Server available. You will need to edit the application.properties file in src/test/resources to
- * add your SQL Server environment data for this test to work.
+ * "ignore" this test, or set the correct url in the src/test/resources/ms.properties
+ * file to test connectivity
  */
 @Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class ServiceInstanceTest {
+@Import(MsConfig.class)
+public class MsServiceInstanceTest {
 
     @Autowired
     private SqlServerClient sqlServerClient;
@@ -55,9 +55,6 @@ public class ServiceInstanceTest {
     @Qualifier("default")
     private CreateServiceInstanceRequest createServiceInstanceDefaultRequest;
 
-    @Autowired
-    private GetServiceInstanceRequest getServiceInstanceRequest;
-
     @Before
     public void setUp() {
         reset();
@@ -69,7 +66,7 @@ public class ServiceInstanceTest {
     }
 
     private void reset() {
-        Optional<ServiceInstance> si = serviceInstanceRepository.findById(TestConfig.SI_ID);
+        Optional<ServiceInstance> si = serviceInstanceRepository.findById(SharedConfig.SI_ID);
         if (si.isPresent()) {
             serviceInstanceRepository.delete(si.get());
         }
@@ -82,7 +79,7 @@ public class ServiceInstanceTest {
         assertEquals(1, si.getParameters().size());
 
         assertNotNull(serviceInstanceRepository.save(si));
-        assertEquals(TestConfig.SI_ID, si.getId());
+        assertEquals(SharedConfig.SI_ID, si.getId());
 
         assertTrue(serviceInstanceRepository.existsById(si.getId()));
 

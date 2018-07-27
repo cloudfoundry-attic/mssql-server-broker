@@ -17,10 +17,8 @@ package io.pivotal.ecosystem.mssqlserver.broker;
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -29,28 +27,28 @@ import java.util.UUID;
 @Slf4j
 class SqlServerClient {
 
-    private JdbcTemplate jdbcTemplate;
     private String url;
+    private Sqlinator sqlinator;
 
-    SqlServerClient(DataSource dataSource, String dbUrl) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    SqlServerClient(String dbUrl, Sqlinator sqlinator) {
         this.url = dbUrl;
+        this.sqlinator = sqlinator;
     }
 
     String createDatabase(ServiceInstance instance) {
         String db = createDbName(instance.getParameters().get(SqlServerServiceInfo.DATABASE));
-        jdbcTemplate.execute("use [master]; exec sp_configure 'contained database authentication', 1 reconfigure; CREATE DATABASE [" + db + "]; ALTER DATABASE [" + db + "] SET CONTAINMENT = PARTIAL");
+        sqlinator.createDb(db);
         log.info("Database: " + db + " created successfully...");
         return db;
     }
 
     void deleteDatabase(String db) {
-        jdbcTemplate.execute("ALTER DATABASE " + db + " SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE " + db);
+        sqlinator.deleteDb(db);
         log.info("Database: " + db + " deleted successfully...");
     }
 
     boolean checkDatabaseExists(String db) {
-        return jdbcTemplate.queryForObject("SELECT count(*) FROM sys.databases WHERE name = ?", new Object[]{db}, Integer.class) > 0;
+        return sqlinator.databaseExists(db);
     }
 
     String getDbUrl(Object db) {
@@ -62,7 +60,7 @@ class SqlServerClient {
 
     //todo how to protect dbs etc. from bad actors?
     private String getRandomishId() {
-        return clean(UUID.randomUUID().toString());
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     /**
@@ -120,21 +118,17 @@ class SqlServerClient {
 
         log.debug("creds: " + userCredentials.toString());
 
-        jdbcTemplate.execute("USE [" + userCredentials.get(SqlServerServiceInfo.DATABASE) + "]; CREATE USER ["
-                + userCredentials.get(SqlServerServiceInfo.USERNAME)
-                + "] WITH PASSWORD='" + userCredentials.get(SqlServerServiceInfo.PASSWORD)
-                + "', DEFAULT_SCHEMA=[dbo]; EXEC sp_addrolemember 'db_owner', '"
-                + userCredentials.get(SqlServerServiceInfo.USERNAME) + "'");
+        sqlinator.userCreate(userCredentials);
 
         log.info("Created user: " + userCredentials.get(SqlServerServiceInfo.USERNAME));
         return userCredentials;
     }
 
     void deleteUserCreds(String uid, String db) {
-        jdbcTemplate.execute("use " + db + "; DROP USER IF EXISTS " + uid);
+        sqlinator.userDelete(db, uid);
     }
 
     boolean checkUserExists(String uid, String db) {
-        return jdbcTemplate.queryForObject("use " + db + "; SELECT count(name) FROM sys.database_principals WHERE name = ?", new Object[]{uid}, Integer.class) > 0;
+        return sqlinator.userExists(db, uid);
     }
 }

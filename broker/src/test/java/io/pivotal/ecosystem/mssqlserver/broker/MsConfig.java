@@ -14,16 +14,26 @@
 
 package io.pivotal.ecosystem.mssqlserver.broker;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-@SpringBootApplication
-@EnableJpaRepositories
-public class Application {
+@TestConfiguration
+@PropertySource("classpath:ms.properties")
+class MsConfig {
 
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+    @Value("${spring.datasource.url}")
+    private String dbUrl;
+
+    @Bean
+    public String dbUrl() {
+        return dbUrl;
     }
 
+    @Bean
+    public Sqlinator sqlinator(JdbcTemplate jdbcTemplate) {
+        return new SqlServerSql(jdbcTemplate);
+    }
 }

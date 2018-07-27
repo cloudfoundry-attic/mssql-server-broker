@@ -14,38 +14,31 @@
 
 package io.pivotal.ecosystem.mssqlserver.broker;
 
-import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.instance.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-class TestConfig {
+class SharedConfig {
 
     static final String SI_ID = "deleteme";
     private static final String SB_ID = "deletemetoo";
-    static final String SD_ID = "SQLServer";
-    static final String PLAN_ID = "oneNodeCluster";
+    private static final String SD_ID = "SQLServer";
+    private static final String PLAN_ID = "oneNodeCluster";
 
     static final String USER_ID = "aUser";
-
-    @Value("${spring.datasource.url}")
-    private String dbUrl;
-
-    @Bean
-    public String dbUrl() {
-        return dbUrl;
-    }
 
     @Bean
     public InstanceService instanceService(SqlServerClient sqlServerClient, ServiceInstanceRepository serviceInstanceRepository) {
@@ -55,14 +48,6 @@ class TestConfig {
     @Bean
     public BindingService bindingService(SqlServerClient sqlServerClient, ServiceInstanceRepository serviceInstanceRepository, ServiceBindingRepository serviceBindingRepository) {
         return new BindingService(sqlServerClient, serviceInstanceRepository, serviceBindingRepository);
-    }
-
-    @Bean
-    public DataSource datasource() {
-        SQLServerConnectionPoolDataSource dataSource = new SQLServerConnectionPoolDataSource();
-
-        dataSource.setURL(dbUrl);
-        return dataSource;
     }
 
     @Bean

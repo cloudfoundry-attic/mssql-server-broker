@@ -15,6 +15,7 @@
 package io.pivotal.ecosystem.mssqlserver.broker;
 
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
+import org.h2.tools.DeleteDbFiles;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -27,6 +28,7 @@ import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingD
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceDoesNotExistException;
 import org.springframework.cloud.servicebroker.model.binding.*;
 import org.springframework.cloud.servicebroker.model.instance.*;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Map;
@@ -36,23 +38,26 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
 /**
- * test will create and delete a cluster on a SQL Server. @Ignore tests unless you are doing integration testing and
- * have a test SQL Server available. You will need to edit the application.properties file in src/test/resources to
- * add your SQL Server environment data for this test to work.
+ * "ignore" this test, or set the correct url in the src/test/resources/ms.properties
+ * file to test connectivity
  */
 @Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class SqlServerBrokerTest {
+@Import(MsConfig.class)
+public class MsSqlServerBrokerTest {
+
+    @Autowired
+    private SqlServerClient sqlServerClient;
 
     @Autowired
     private InstanceService instanceService;
 
     @Autowired
-    private BindingService bindingService;
+    private ServiceInstanceRepository serviceInstanceRepository;
 
     @Autowired
-    private ServiceInstanceRepository serviceInstanceRepository;
+    private BindingService bindingService;
 
     @Autowired
     @Qualifier("custom")
@@ -70,9 +75,6 @@ public class SqlServerBrokerTest {
 
     @Autowired
     private UpdateServiceInstanceRequest updateServiceInstanceRequest;
-
-    @Autowired
-    private SqlServerClient sqlServerClient;
 
     @Autowired
     private GetServiceInstanceBindingRequest getServiceInstanceBindingRequest;
@@ -94,11 +96,11 @@ public class SqlServerBrokerTest {
     }
 
     private void reset() {
-        if (sqlServerClient.checkDatabaseExists(TestConfig.SI_ID)) {
-            sqlServerClient.deleteDatabase(TestConfig.SI_ID);
+        if (sqlServerClient.checkDatabaseExists(SharedConfig.SI_ID)) {
+            sqlServerClient.deleteDatabase(SharedConfig.SI_ID);
         }
 
-        Optional<ServiceInstance> si = serviceInstanceRepository.findById(TestConfig.SI_ID);
+        Optional<ServiceInstance> si = serviceInstanceRepository.findById(SharedConfig.SI_ID);
         if (si.isPresent()) {
             serviceInstanceRepository.delete(si.get());
         }
@@ -141,7 +143,7 @@ public class SqlServerBrokerTest {
         assertEquals(4, m.size());
         assertEquals("aUser", m2.get(SqlServerServiceInfo.USERNAME));
         assertNotNull(m2.get(SqlServerServiceInfo.URI));
-        assertTrue(m2.get(SqlServerServiceInfo.URI).toString().startsWith("jdbc:sqlserver://"));
+        assertTrue(m2.get(SqlServerServiceInfo.URI).toString().startsWith("jdbc:sqlserver:"));
         assertEquals("deleteme", m2.get(SqlServerServiceInfo.DATABASE));
 
         bindingService.deleteServiceInstanceBinding(deleteServiceInstanceBindingRequest);

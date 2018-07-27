@@ -14,8 +14,6 @@
 
 package io.pivotal.ecosystem.mssqlserver.broker;
 
-import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
-import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
 import org.springframework.cloud.servicebroker.model.BrokerApiVersion;
 import org.springframework.cloud.servicebroker.model.catalog.Catalog;
 import org.springframework.cloud.servicebroker.model.catalog.Plan;
@@ -25,30 +23,25 @@ import org.springframework.cloud.servicebroker.service.ServiceInstanceService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-
-import javax.sql.DataSource;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
 @EnableJpaRepositories
 @Profile("cloud")
+@PropertySource("classpath:cloud.properties")
 public class CloudConfig {
 
     @Bean
-    public DataSource datasource(Environment env) {
-        SQLServerConnectionPoolDataSource dataSource = new SQLServerConnectionPoolDataSource();
-
-        dataSource.setURL(dbUrl(env));
-        dataSource.setUser(env.getProperty(SqlServerServiceInfo.USER_KEY));
-        dataSource.setPassword(env.getProperty(SqlServerServiceInfo.PW_KEY));
-
-        return dataSource;
+    public String dbUrl(Environment env) {
+        return env.getProperty("spring.datasource.url");
     }
 
     @Bean
-    public String dbUrl(Environment env) {
-        return SqlServerServiceInfo.URI_SCHEME + "://" + env.getProperty(SqlServerServiceInfo.HOST_KEY) + ":" + Integer.parseInt(env.getProperty(SqlServerServiceInfo.PORT_KEY));
+    public Sqlinator sqlinator(JdbcTemplate jdbcTemplate) {
+        return new SqlServerSql(jdbcTemplate);
     }
 
     @Bean
