@@ -6,6 +6,8 @@ This version should be considered a beta product, and has been tested against CF
 ## Prerequisites
 The service broker requires an existing SQL Server install. It has been tested against the docker-based version described [here](https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker).
 
+JDK 8 Required to compile.
+
 ## The Modules
 ### [broker](https://github.com/cf-platform-eng/mssql-server-broker/tree/master/broker)
 This module contains the broker code. Its [readme](https://github.com/cf-platform-eng/mssql-server-broker/blob/master/broker/README.md) contains information on how to build, configure, and deploy the broker.
