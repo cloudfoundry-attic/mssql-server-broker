@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
 import org.springframework.context.annotation.Import;
@@ -35,8 +35,8 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@Import(H2Config.class)
+@DataJpaTest
+@Import({SharedConfig.class, H2Config.class})
 public class H2SqlServerClientTest {
 
     @Autowired
@@ -53,12 +53,6 @@ public class H2SqlServerClientTest {
     @Autowired
     @Qualifier("custom")
     private CreateServiceInstanceBindingRequest createServiceInstanceBindingCustomRequest;
-
-    @Autowired
-    private String dbUrl;
-
-    @Autowired
-    private Sqlinator h2;
 
     @Before
     public void setUp() {
@@ -138,13 +132,6 @@ public class H2SqlServerClientTest {
                 sqlServerClient.deleteDatabase(db);
             }
         }
-    }
-
-
-    @Test
-    public void testGetDbUrl() {
-        assertEquals(dbUrl + ";databaseName=foo", sqlServerClient.getDbUrl("foo"));
-        assertEquals(dbUrl, sqlServerClient.getDbUrl(null));
     }
 
     @Test

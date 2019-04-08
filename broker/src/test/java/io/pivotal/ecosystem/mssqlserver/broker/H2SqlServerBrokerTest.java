@@ -15,15 +15,11 @@
 package io.pivotal.ecosystem.mssqlserver.broker;
 
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
-import org.h2.tools.DeleteDbFiles;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingDoesNotExistException;
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceDoesNotExistException;
 import org.springframework.cloud.servicebroker.model.binding.*;
@@ -32,24 +28,17 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Map;
-import java.util.Optional;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@Import(H2Config.class)
+@DataJpaTest
+@Import({SharedConfig.class, H2Config.class})
 public class H2SqlServerBrokerTest {
 
     @Autowired
-    private SqlServerClient sqlServerClient;
-
-    @Autowired
     private InstanceService instanceService;
-
-    @Autowired
-    private ServiceInstanceRepository serviceInstanceRepository;
 
     @Autowired
     private BindingService bindingService;
@@ -80,19 +69,6 @@ public class H2SqlServerBrokerTest {
     @Autowired
     private DeleteServiceInstanceRequest deleteServiceInstanceRequest;
 
-    @Before
-    public void setUp() {
-        reset();
-    }
-
-    @After
-    public void cleanUp() {
-        reset();
-    }
-
-    private void reset() {
-        DeleteDbFiles.execute(".", "test", true);
-    }
 
     @Test
     public void testLifecycleCustom() {

@@ -22,6 +22,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/v2/**").hasRole("ADMIN")
                 .antMatchers("/error/**").permitAll()
+                .antMatchers("/**").hasRole("ADMIN")
                 .and()
                 .httpBasic();
     }

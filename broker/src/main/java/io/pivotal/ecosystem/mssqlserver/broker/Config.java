@@ -22,17 +22,13 @@ import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingSer
 import org.springframework.cloud.servicebroker.service.ServiceInstanceService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
 @EnableJpaRepositories
-@Profile("cloud")
-@PropertySource("classpath:cloud.properties")
-public class CloudConfig {
+public class Config {
 
     @Bean
     public String dbUrl(Environment env) {

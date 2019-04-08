@@ -16,16 +16,12 @@ package io.pivotal.ecosystem.mssqlserver.broker;
 
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.instance.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,16 +35,6 @@ class SharedConfig {
     private static final String PLAN_ID = "oneNodeCluster";
 
     static final String USER_ID = "aUser";
-
-    @Bean
-    public InstanceService instanceService(SqlServerClient sqlServerClient, ServiceInstanceRepository serviceInstanceRepository) {
-        return new InstanceService(sqlServerClient, serviceInstanceRepository);
-    }
-
-    @Bean
-    public BindingService bindingService(SqlServerClient sqlServerClient, ServiceInstanceRepository serviceInstanceRepository, ServiceBindingRepository serviceBindingRepository) {
-        return new BindingService(sqlServerClient, serviceInstanceRepository, serviceBindingRepository);
-    }
 
     @Bean
     @Qualifier("default")
