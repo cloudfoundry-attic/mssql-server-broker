@@ -27,8 +27,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +39,7 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
 /**
- * "ignore" this test, or set the correct url in the src/test/resources/ms.properties
+ * "ignore" this test, or set the correct configuration the src/test/resources/application.properties
  * file to test connectivity
  */
 @Ignore
@@ -60,9 +63,6 @@ public class MsSqlServerClientTest {
     @Qualifier("custom")
     private CreateServiceInstanceBindingRequest createServiceInstanceBindingCustomRequest;
 
-    @Autowired
-    private String dbUrl;
-
     @Before
     public void setUp() {
         reset();
@@ -81,7 +81,6 @@ public class MsSqlServerClientTest {
 
     @Test
     public void testDBCustomLifecycle() {
-
         assertFalse(sqlServerClient.checkDatabaseExists(SharedConfig.SI_ID));
 
         ServiceInstance si = new ServiceInstance(createServiceInstanceCustomRequest);
@@ -143,13 +142,6 @@ public class MsSqlServerClientTest {
                 sqlServerClient.deleteDatabase(db);
             }
         }
-    }
-
-
-    @Test
-    public void testGetDbUrl() {
-        assertEquals(dbUrl + ";databaseName=foo", sqlServerClient.getDbUrl("foo"));
-        assertEquals(dbUrl, sqlServerClient.getDbUrl(null));
     }
 
     @Test

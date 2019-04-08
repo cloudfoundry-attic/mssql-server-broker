@@ -14,27 +14,45 @@
 
 package io.pivotal.ecosystem.mssqlserver.broker;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @TestConfiguration
-@PropertySource("classpath:h2.properties")
 class H2Config {
 
     @Value("${spring.datasource.url}")
     private String dbUrl;
 
-    @Bean
-    public String dbUrl() {
-        return dbUrl;
-    }
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private ServiceInstanceRepository serviceInstanceRepository;
+
+    @Autowired
+    private ServiceBindingRepository serviceBindingRepository;
 
     @Bean
     public Sqlinator sqlinator(JdbcTemplate jdbcTemplate) {
         return new H2Sql(jdbcTemplate);
+    }
+
+    @Bean
+    public SqlServerClient sqlServerClient(Sqlinator sqlinator) {
+        return new SqlServerClient(dbUrl, sqlinator);
+    }
+
+    @Bean
+    public InstanceService instanceService(SqlServerClient sqlServerClient) {
+        return new InstanceService(sqlServerClient, serviceInstanceRepository);
+    }
+
+    @Bean
+    public BindingService bindingService(SqlServerClient sqlServerClient) {
+        return new BindingService(sqlServerClient, serviceInstanceRepository, serviceBindingRepository);
     }
 
 }

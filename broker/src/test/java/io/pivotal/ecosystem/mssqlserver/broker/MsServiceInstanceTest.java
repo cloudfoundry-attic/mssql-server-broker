@@ -32,7 +32,7 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
 /**
- * "ignore" this test, or set the correct url in the src/test/resources/ms.properties
+ * "ignore" this test, or set the correct configuration the src/test/resources/application.properties
  * file to test connectivity
  */
 @Ignore
@@ -40,9 +40,6 @@ import static org.junit.Assert.*;
 @SpringBootTest
 @Import(MsConfig.class)
 public class MsServiceInstanceTest {
-
-    @Autowired
-    private SqlServerClient sqlServerClient;
 
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository;

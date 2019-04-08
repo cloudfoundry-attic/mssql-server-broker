@@ -14,22 +14,43 @@
 
 package io.pivotal.ecosystem.mssqlserver.broker;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.TestConfiguration;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-@TestConfiguration
-@PropertySource("classpath:ms.properties")
+import javax.sql.DataSource;
+
+@Configuration
+@ConfigurationProperties(prefix = "ms")
+@Data
 class MsConfig {
 
-    @Value("${spring.datasource.url}")
-    private String dbUrl;
+    private String jdbcUrl;
+    private String useranme;
+    private String password;
+
+    @Bean
+    @ConfigurationProperties(prefix = "ms")
+    public DataSource dataSource() {
+        return DataSourceBuilder.create().url(jdbcUrl).username(useranme).password(password).build();
+    }
 
     @Bean
     public String dbUrl() {
-        return dbUrl;
+        return jdbcUrl;
+    }
+
+    @Bean
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
+    }
+
+    @Bean
+    public SqlServerClient sqlServerClient(Sqlinator sqlinator) {
+        return new SqlServerClient(jdbcUrl, sqlinator);
     }
 
     @Bean

@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
 import org.springframework.context.annotation.Import;
@@ -32,8 +33,8 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@Import(H2Config.class)
+@DataJpaTest
+@Import({SharedConfig.class, H2Config.class})
 public class H2ServiceInstanceTest {
 
     @Autowired
