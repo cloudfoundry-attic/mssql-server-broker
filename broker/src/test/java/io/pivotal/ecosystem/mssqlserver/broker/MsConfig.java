@@ -57,5 +57,4 @@ class MsConfig {
     public Sqlinator sqlinator(JdbcTemplate jdbcTemplate) {
         return new SqlServerSql(jdbcTemplate);
     }
-
 }
