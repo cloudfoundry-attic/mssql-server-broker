@@ -16,17 +16,17 @@ package io.pivotal.ecosystem.mssqlserver.broker;
 
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.instance.*;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Configuration
+@TestConfiguration
 class SharedConfig {
 
     static final String SI_ID = "deleteme";

@@ -15,7 +15,6 @@
 package io.pivotal.ecosystem.mssqlserver.broker;
 
 import io.pivotal.ecosystem.mssqlserver.broker.connector.SqlServerServiceInfo;
-import org.h2.tools.DeleteDbFiles;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -27,11 +26,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
 import org.springframework.context.annotation.Import;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,13 +36,14 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
 /**
- * "ignore" this test, or set the correct configuration the src/test/resources/application.properties
+ * "ignore" this test, or set the correct configuration the src/test/resources/ms.properties
  * file to test connectivity
  */
 @Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Import(MsConfig.class)
+@Import(SharedConfig.class)
+@TestPropertySource("classpath:ms.properties")
 public class MsSqlServerClientTest {
 
     @Autowired

@@ -29,6 +29,7 @@ import org.springframework.cloud.servicebroker.exception.ServiceInstanceDoesNotE
 import org.springframework.cloud.servicebroker.model.binding.*;
 import org.springframework.cloud.servicebroker.model.instance.*;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Map;
@@ -38,13 +39,14 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
 /**
- * "ignore" this test, or set the correct configuration the src/test/resources/application.properties
+ * "ignore" this test, or set the correct configuration the src/test/resources/ms.properties
  * file to test connectivity
  */
 @Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Import(MsConfig.class)
+@Import(SharedConfig.class)
+@TestPropertySource("classpath:ms.properties")
 public class MsSqlServerBrokerTest {
 
     @Autowired
