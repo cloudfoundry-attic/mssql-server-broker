@@ -71,7 +71,7 @@ public class H2SqlServerClientTest {
     @Test
     public void testDBCustomLifecycle() {
 
-        assertFalse(sqlServerClient.checkDatabaseExists(SharedConfig.SI_ID));
+        assertFalse("database should not exist.", sqlServerClient.checkDatabaseExists(SharedConfig.SI_ID));
 
         ServiceInstance si = new ServiceInstance(createServiceInstanceCustomRequest);
 
@@ -111,7 +111,7 @@ public class H2SqlServerClientTest {
             assertNotNull(db);
 
             assertTrue(sqlServerClient.checkDatabaseExists(db));
-            assertFalse(sqlServerClient.checkUserExists(SharedConfig.USER_ID, db));
+            assertFalse("user should not exist.", sqlServerClient.checkUserExists(SharedConfig.USER_ID, db));
 
             //todo deal with all of this back and forth
             si.getParameters().put(SqlServerServiceInfo.DATABASE, db);

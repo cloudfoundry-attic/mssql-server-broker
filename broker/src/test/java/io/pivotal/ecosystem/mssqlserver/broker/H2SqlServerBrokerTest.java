@@ -25,6 +25,7 @@ import org.springframework.cloud.servicebroker.exception.ServiceInstanceDoesNotE
 import org.springframework.cloud.servicebroker.model.binding.*;
 import org.springframework.cloud.servicebroker.model.instance.*;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Map;
@@ -35,6 +36,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 @Import({SharedConfig.class, H2Config.class})
+@TestPropertySource("classpath:h2.properties")
 public class H2SqlServerBrokerTest {
 
     @Autowired
@@ -107,7 +109,7 @@ public class H2SqlServerBrokerTest {
         assertEquals(4, m.size());
         assertEquals("aUser", m2.get(SqlServerServiceInfo.USERNAME));
         assertNotNull(m2.get(SqlServerServiceInfo.URI));
-        assertTrue(m2.get(SqlServerServiceInfo.URI).toString().startsWith("jdbc:h2:"));
+        assertTrue("uri should start with 'jdbc:h2'", m2.get(SqlServerServiceInfo.URI).toString().startsWith("jdbc:h2:"));
         assertEquals("deleteme", m2.get(SqlServerServiceInfo.DATABASE));
 
         bindingService.deleteServiceInstanceBinding(deleteServiceInstanceBindingRequest);

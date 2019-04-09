@@ -85,7 +85,7 @@ public class BindingService implements ServiceInstanceBindingService {
     }
 
     @Override
-    public void deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest) {
+    public DeleteServiceInstanceBindingResponse deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest) {
         Optional<ServiceInstance> si = serviceInstanceRepository.findById(deleteServiceInstanceBindingRequest.getServiceInstanceId());
         if (!si.isPresent()) {
             throw new ServiceInstanceDoesNotExistException(deleteServiceInstanceBindingRequest.getServiceInstanceId());
@@ -99,5 +99,8 @@ public class BindingService implements ServiceInstanceBindingService {
         log.info("deleting binding: " + deleteServiceInstanceBindingRequest.getBindingId() + " for service instance: " + deleteServiceInstanceBindingRequest.getServiceInstanceId());
         sqlServerClient.deleteUserCreds(sb.get().getCredentials().get(SqlServerServiceInfo.USERNAME), si.get().getParameters().get(SqlServerServiceInfo.DATABASE));
         serviceBindingRepository.delete(sb.get());
+
+        return DeleteServiceInstanceBindingResponse.builder()
+                .build();
     }
 }
